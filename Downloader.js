@@ -36,6 +36,24 @@ function getInfo(){
 
 //获取文章章节信息
 function getList(){
+
+    //获取页数
+    function getNumOfPage(){
+        let numOfPageOrigin = document.getElementsByClassName("page")[1].childNodes[4].textContent;
+        let numOfPage = numOfPageOrigin.match(/\d+/g)[1];
+        return numOfPage;
+    }
+
+    //翻页(未实现)
+    function turnPage(){
+        var xhr = new XMLHttpRequest(); 
+        var uurl = url.substring(0, url.length-2)
+        for (let i = 1; i < 10; i++){
+            xhr.open("GET",uurl);
+            xhr.send();
+        }
+    }
+
     return(
         document.getElementsByClassName("list")[1].getElementsByTagName("a")
     );
@@ -43,22 +61,40 @@ function getList(){
 
 //获取文章章节链接
 function getLink(list){
-    var link = new Array();
-    for (var i = 0;i < list.length ; i++){
-        link.push(list[i].getAttribute("href"));
-    }return link;
+    let link = new Array();
+    for (let i = 0;i < list.length ; i++){
+        link.push(url + list[i].getAttribute("href"));
+    }return (link);
 }
 
-//获取文章章节子页面数
+//获取文章章节子页面(未实现)
+function getContain(){
 
-//输出文件
+}
+
+//输出文件(未实现)
+function outFile(){
+
+}
+
+//下载按钮事件(未实现)
+function downloadDoc(){
+    if(exsit()){
+        let link = getLink(getList());
+        
+    }
+}
 
 (function() {
     'use strict';
 
+    //按钮创建
+
+    //debuger
     if(exsit()){
-        var link = getLink(getList());
+        let link = getLink(getList());
         console.log(link);
     }
+
 
 })()
