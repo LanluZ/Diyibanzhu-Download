@@ -79,16 +79,28 @@ function outFile(){
 
 //下载按钮事件(未实现)
 function downloadDoc(){
+    alert("1");
     if(exsit()){
         let link = getLink(getList());
-        
+    }
+}
+
+//按钮创建(实现一半)
+function layButton(){
+    if(document.getElementsByClassName("ft")[0]){
+        document.getElementsByClassName("ft")[0].childNodes[1].childNodes[1].innerHTML += "\
+        <tr>\
+            <td width='50%'>\
+                <a class='read start' href='javascript:downloadDoc()'>下载</a>\
+            </td>\
+        </tr>";
     }
 }
 
 (function() {
     'use strict';
-
     //按钮创建
+    layButton();
 
     //debuger
     if(exsit()){
