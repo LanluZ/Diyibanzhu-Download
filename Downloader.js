@@ -10,9 +10,13 @@
 // @match        https://*/*
 // @grant        unsafeWindow
 // @license      GNU GPLv3
+// @require      https://cdn.jsdelivr.net/npm/web-streams-polyfill@2.0.2/dist/ponyfill.min.js
+// @require      https://cdn.jsdelivr.net/gh/jimmywarting/StreamSaver.js/StreamSaver.js
+// @require      https://cdn.jsdelivr.net/gh/eligrey/Blob.js/Blob.js
 // ==/UserScript==
 
 var url = window.location.href;
+
 
 //判断网页是否为第一版主三级子页面
 function exsit(){
@@ -94,12 +98,28 @@ function getContain(){
 
 }
 
-//输出文件(未实现)
-function outFile(){
-
+//输出文件
+function outFile(text){
+    //StreamSaver库运用
+    const blob = new Blob([text])
+    const fileStream = streamSaver.createWriteStream(getTitle() + '.txt', {
+    size: blob.size
+    })
+    const readableStream = blob.stream()
+    if (window.WritableStream && readableStream.pipeTo) {
+    return readableStream.pipeTo(fileStream)
+        .then(() => console.log('done writing'))
+    }
+    window.writer = fileStream.getWriter()
+    const reader = readableStream.getReader()
+    const pump = () => reader.read()
+    .then(res => res.done
+        ? writer.close()
+        : writer.write(res.value).then(pump))
+    pump()
 }
 
-//下载按钮事件(实现中)
+//下载按钮事件
 
 var downloadStatus = 0
 
@@ -111,12 +131,19 @@ function downloadDoc(){
         downloadStatus++;
         getList(0,0);
 
-        //延时等待请求完毕(尚未实现自定义准备时间)
+        //延时等待目录请求完毕(尚未实现自定义准备时间)
         setTimeout(() => {
             var link = getLink(catalogueArr);
             console.log(link);
+            //延时等待内容请求完毕
+            setTimeout(() => {
+                //添加书籍信息
+                let text = getInfo();
+                //添加书籍内容
+                text += getContain();
+                outFile(text);
+            }, catalogueArr.length * 200);
         }, 4000);
-
     }
 }
 
