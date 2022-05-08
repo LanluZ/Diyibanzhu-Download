@@ -4,7 +4,7 @@
 // @version      1.0.0
 // @supportURL   
 // @homepageURL  
-// @description  第一版主网下载器，因为网址随时在变，所以暂时不做域名匹配
+// @description  第一版主网下载器，因为网址随时在变，所以不做域名匹配
 // @author       LanluZ
 // @match        http://*/*
 // @match        https://*/*
@@ -14,10 +14,12 @@
 
 var url = window.location.href;
 
-//判断网页是否为第一版主网三级子页面
+//判断网页是否为第一版主三级子页面
 function exsit(){
     if(url.match(/\//g).length-2 == 3 && document.title.match(/第一版主网/).length == 1){
-        return true;
+        if(url.indexOf("_") == -1){
+            return true;
+        }
     }   return false;
     
 }
@@ -35,7 +37,10 @@ function getInfo(){
 }
 
 //获取文章章节信息
-function getList(){
+
+var catalogueArr = new Array();
+
+function getList(page,first){
 
     //获取页数
     function getNumOfPage(){
@@ -45,18 +50,33 @@ function getList(){
     }
 
     //翻页(未实现)
-    function turnPage(){
-        var xhr = new XMLHttpRequest(); 
-        var uurl = url.substring(0, url.length-2)
-        for (let i = 1; i < 10; i++){
-            xhr.open("GET",uurl);
-            xhr.send();
+    async function turnPage(page){
+        let uurl = url.substring(0, url.length-1) + "_" + page + "/";    
+        let xhr =new XMLHttpRequest();
+        xhr.open("GET", uurl);
+        xhr.responseType = "document";
+        xhr.send();
+        xhr.onload = function(){
+            if (xhr.status != 200){
+                alert("下载错误");
+            }else{
+                catalogueArr = catalogueArr.concat(xhr.response.getElementsByClassName("list")[1].getElementsByTagName("a"));
+                console.log(xhr.response.getElementsByClassName("list")[1].getElementsByTagName("a"));
+            }
         }
     }
 
-    return(
-        document.getElementsByClassName("list")[1].getElementsByTagName("a")
-    );
+    if(first == 0){
+        console.log(getNumOfPage());
+        for (let i = 1 ;i <= getNumOfPage(); i++){
+            turnPage(i, 1);
+        }return;
+    }else if (first == 1){
+        turnPage(page, 2);
+    }else if (first == 2){
+        return;
+    }
+
 }
 
 //获取文章章节链接
@@ -78,35 +98,42 @@ function outFile(){
 }
 
 //下载按钮事件(未实现)
+
+var downloadStatus = 0
+
 function downloadDoc(){
-    alert("1");
-    if(exsit()){
-        let link = getLink(getList());
+    if (downloadStatus != 0){
+        alert("请勿重复点击！");
+    }else{
+        downloadStatus++;
+        getList(0,0);
+        console.log(catalogueArr);
     }
 }
 
-//按钮创建(实现一半)
+//按钮创建
 function layButton(){
     if(document.getElementsByClassName("ft")[0]){
-        document.getElementsByClassName("ft")[0].childNodes[1].childNodes[1].innerHTML += "\
-        <tr>\
-            <td width='50%'>\
-                <a class='read start' href='javascript:downloadDoc()'>下载</a>\
-            </td>\
-        </tr>";
+
+        let downloadBtn = document.createElement("div")
+        downloadBtn.innerHTML = "<tr><td width='50%'><a class='read start'>下载</a></td></tr>";
+        downloadBtn.onclick = function(){
+            downloadDoc();
+        };
+
+        let ftNode = document.getElementsByClassName("ft")[0].childNodes[1].childNodes[1];
+
+        ftNode.appendChild(downloadBtn);
+        
     }
 }
 
 (function() {
     'use strict';
-    //按钮创建
-    layButton();
 
-    //debuger
+    //放置按钮
     if(exsit()){
-        let link = getLink(getList());
-        console.log(link);
+        layButton();
     }
-
 
 })()
