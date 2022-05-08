@@ -49,7 +49,7 @@ function getList(page,first){
         return numOfPage;
     }
 
-    //翻页(未实现)
+    //翻页
     async function turnPage(page){
         let uurl = url.substring(0, url.length-1) + "_" + page + "/";    
         let xhr =new XMLHttpRequest();
@@ -60,8 +60,10 @@ function getList(page,first){
             if (xhr.status != 200){
                 alert("下载错误");
             }else{
-                catalogueArr = catalogueArr.concat(xhr.response.getElementsByClassName("list")[1].getElementsByTagName("a"));
-                console.log(xhr.response.getElementsByClassName("list")[1].getElementsByTagName("a"));
+                let temp = xhr.response.getElementsByClassName("list")[1].getElementsByTagName("a");
+                for (let i = 0;i < temp.length; i++ ){
+                    catalogueArr.push(temp[i]);
+                }
             }
         }
     }
