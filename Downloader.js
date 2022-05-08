@@ -68,8 +68,8 @@ function getList(page,first){
         }
     }
 
+    //递减式翻页法
     if(first == 0){
-        console.log(getNumOfPage());
         for (let i = 1 ;i <= getNumOfPage(); i++){
             turnPage(i, 1);
         }return;
@@ -84,7 +84,7 @@ function getList(page,first){
 //获取文章章节链接
 function getLink(list){
     let link = new Array();
-    for (let i = 0;i < list.length ; i++){
+    for (let i = 0;i < list.length; i++){
         link.push(url + list[i].getAttribute("href"));
     }return (link);
 }
@@ -99,17 +99,24 @@ function outFile(){
 
 }
 
-//下载按钮事件(未实现)
+//下载按钮事件(实现中)
 
 var downloadStatus = 0
 
 function downloadDoc(){
+
     if (downloadStatus != 0){
         alert("请勿重复点击！");
     }else{
         downloadStatus++;
         getList(0,0);
-        console.log(catalogueArr);
+
+        //延时等待请求完毕(尚未实现自定义准备时间)
+        setTimeout(() => {
+            var link = getLink(catalogueArr);
+            console.log(link);
+        }, 4000);
+
     }
 }
 
