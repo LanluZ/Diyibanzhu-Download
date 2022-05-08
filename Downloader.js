@@ -93,8 +93,12 @@ function getLink(list){
     }return (link);
 }
 
-//获取文章章节子页面(未实现)
-function getContain(){
+//获取文章章节子页面(实现中)
+function getContain(link){
+    //获取子页面的子页面
+    function getSonCate(){
+
+    }
 
 }
 
@@ -134,7 +138,10 @@ function downloadDoc(){
         //延时等待目录请求完毕(尚未实现自定义准备时间)
         setTimeout(() => {
             var link = getLink(catalogueArr);
-            console.log(link);
+            //遍历页面
+            for(let i = 0; i < link.length; i++){
+                getContain(link[0]);
+            }
             //延时等待内容请求完毕
             setTimeout(() => {
                 //添加书籍信息
@@ -142,7 +149,7 @@ function downloadDoc(){
                 //添加书籍内容
                 text += getContain();
                 outFile(text);
-            }, catalogueArr.length * 200);
+            }, catalogueArr.length * 200 + 1000);//评估下载时长
         }, 4000);
     }
 }
@@ -171,5 +178,9 @@ function layButton(){
     if(exsit()){
         layButton();
     }
+
+    let textObj = document.getElementsByClassName("chapterinfo")[0].
+
+    console.log(text);
 
 })()
