@@ -24,6 +24,12 @@
 
     [第一版主网](www.diyibanzhu.wang)
 
+#### 安装
+
+|脚本猫||
+|--|--|
+|[安装](https://scriptcat.org/scripts/code/431/Diyibanzhu+Downloader.user.js)||
+
 #### 预览
 
 网站页面
