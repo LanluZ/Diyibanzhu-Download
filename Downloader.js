@@ -88,29 +88,58 @@ function getList(page,first){
 function getLink(list){
     let link = new Array();
     for (let i = 0;i < list.length; i++){
-        link.push(url + list[i].getAttribute("href"));
+        link.push(window.location.host + list[i].getAttribute("href"));
     }return (link);
 }
 
-//获取文章章节子页面(实现中)
+//文本信息
+var conText = "";
+
+//获取文章内容
 function getContain(link){
-    async function getText(){
-        let linkSon = link.substring(0, url.length-1) + "_" + page + "/";    
+
+    //单页子页面爬取
+    async function getText(page){
+        //初始化
+        let linkCo ="http://" + link.substring(0, link.length-5) + "_" + page + ".html";  
         let xhr =new XMLHttpRequest();
-        xhr.open("GET", uurl);
+        xhr.open("GET", linkCo);
         xhr.responseType = "document";
         xhr.send();
         xhr.onload = function(){
             if (xhr.status != 200){
                 alert("下载错误");
             }else{
-                let temp = xhr.response.getElementsByClassName("list")[1].getElementsByTagName("a");
-                for (let i = 0;i < temp.length; i++ ){
-                    catalogueArr.push(temp[i]);
+                //存在性判断
+                if(xhr.response.getElementsByClassName("chapterinfo")[0]||xhr.response.getElementsByClassName("chapter-text")[0]){
+                    let tempText = "";
+
+                    //第一页
+                    if(page == 1){
+                        let tempFather = xhr.response.getElementsByClassName("chapterinfo")[0].childNodes;
+                        for(let i = 0; i < tempFather.length; i++){
+                            if(tempFather[i].nodeName == "BR")
+                                tempText += "\n"
+                            else
+                                tempText += tempFather[i].textContent;
+                        }//添加信息
+                    }//其他页
+                    else if(page != 1){
+                        let tempText = xhr.response.getElementsByClassName("chapter-text")[0].outerText;
+                        conText += tempText;
+                    }
+                    conText += tempText;
                 }
             }
         }
     }
+
+
+    //懒得获取子页面页面数，暴力20页抓取
+    for(let i = 1; i <= 20; i++){
+        getText(i);
+    }
+
 
 }
 
@@ -141,7 +170,6 @@ function setTitle(remain){
     function setTitleTime(){
         document.title = "[" + remain + "s]" + sourceTitle;
         remain--;
-        console.log(remain);
         if (remain <= 0){
             clearInterval(timeID);
             document.title = "[完毕]" + sourceTitle;
@@ -152,6 +180,7 @@ function setTitle(remain){
 
 //下载按钮事件
 
+//已下载状态标识
 var downloadStatus = 0
 
 function downloadDoc(){
@@ -161,7 +190,7 @@ function downloadDoc(){
     }else{
         downloadStatus++;
         getList(0,0);
-        alert("准备中，4秒后开始");
+        alert("准备中，4秒后开始\n如果浏览器标题显示完成仍未开始下载请检查浏览器是否拦截弹窗");
 
         //延时等待目录请求完毕(尚未实现自定义准备时间)
         setTimeout(() => {
@@ -174,14 +203,18 @@ function downloadDoc(){
 
             //延时等待内容请求完毕
             setTimeout(() => {
-                /* //添加书籍信息
-                let text = getInfo();
+                //添加书籍信息
+                conText = getInfo();
+                
                 //添加书籍内容
                 for(let i = 0; i < link.length; i++){
-                    text += getContain(link[0]);
-                }
-                outFile(text); */
-            }, catalogueArr.length * 200 + 1000);//评估下载时长
+                    getContain(link[i]);
+                } 
+                //输出文件
+                setTimeout(() => {
+                    outFile(conText);
+                }, catalogueArr.length * 200 + 1000);
+            }, 1000);//评估下载时长
         }, 4000);
     }
 }
@@ -204,13 +237,11 @@ function layButton(){
 }
 
 (function() {
-    'use strict';
+    'use strict';   
 
     //放置按钮
     if(exsit()){
         layButton();
     }
-
-    //console.log(text);
 
 })()
