@@ -17,7 +17,6 @@
 
 var url = window.location.href;
 
-
 //判断网页是否为第一版主三级子页面
 function exsit(){
     if(url.match(/\//g).length-2 == 3 && document.title.match(/第一版主网/).length == 1){
@@ -95,9 +94,22 @@ function getLink(list){
 
 //获取文章章节子页面(实现中)
 function getContain(link){
-    //获取子页面的子页面
-    function getSonCate(){
-
+    async function getText(){
+        let linkSon = link.substring(0, url.length-1) + "_" + page + "/";    
+        let xhr =new XMLHttpRequest();
+        xhr.open("GET", uurl);
+        xhr.responseType = "document";
+        xhr.send();
+        xhr.onload = function(){
+            if (xhr.status != 200){
+                alert("下载错误");
+            }else{
+                let temp = xhr.response.getElementsByClassName("list")[1].getElementsByTagName("a");
+                for (let i = 0;i < temp.length; i++ ){
+                    catalogueArr.push(temp[i]);
+                }
+            }
+        }
     }
 
 }
@@ -112,7 +124,7 @@ function outFile(text){
     const readableStream = blob.stream()
     if (window.WritableStream && readableStream.pipeTo) {
     return readableStream.pipeTo(fileStream)
-        .then(() => console.log('done writing'))
+        .then(() => console.log('下载完成'))
     }
     window.writer = fileStream.getWriter()
     const reader = readableStream.getReader()
@@ -121,6 +133,21 @@ function outFile(text){
         ? writer.close()
         : writer.write(res.value).then(pump))
     pump()
+}
+
+//标题倒计时事件
+function setTitle(remain){
+    let sourceTitle = document.title;
+    function setTitleTime(){
+        document.title = "[" + remain + "s]" + sourceTitle;
+        remain--;
+        console.log(remain);
+        if (remain <= 0){
+            clearInterval(timeID);
+            document.title = "[完毕]" + sourceTitle;
+        }
+    }
+    var timeID = setInterval(setTitleTime,1000);
 }
 
 //下载按钮事件
@@ -134,21 +161,26 @@ function downloadDoc(){
     }else{
         downloadStatus++;
         getList(0,0);
+        alert("准备中，4秒后开始");
 
         //延时等待目录请求完毕(尚未实现自定义准备时间)
         setTimeout(() => {
+            //得到链接列表
             var link = getLink(catalogueArr);
-            //遍历页面
-            for(let i = 0; i < link.length; i++){
-                getContain(link[0]);
-            }
+            console.log(catalogueArr);
+            console.log(link);
+            //显示倒计时
+            setTitle(Math.ceil((catalogueArr.length * 200 + 1000)/1000))
+
             //延时等待内容请求完毕
             setTimeout(() => {
-                //添加书籍信息
+                /* //添加书籍信息
                 let text = getInfo();
                 //添加书籍内容
-                text += getContain();
-                outFile(text);
+                for(let i = 0; i < link.length; i++){
+                    text += getContain(link[0]);
+                }
+                outFile(text); */
             }, catalogueArr.length * 200 + 1000);//评估下载时长
         }, 4000);
     }
@@ -179,8 +211,6 @@ function layButton(){
         layButton();
     }
 
-    let textObj = document.getElementsByClassName("chapterinfo")[0].
-
-    console.log(text);
+    //console.log(text);
 
 })()
