@@ -143,6 +143,16 @@ function getContain(link){
 
 }
 
+//文章排序(未实现|等待有缘人)
+function sortContain(){
+
+}
+
+//图片识别(未实现|等待有缘人)
+function ocrImg(){
+    
+}
+
 //输出文件
 function outFile(text){
     //StreamSaver库运用
