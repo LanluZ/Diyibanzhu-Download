@@ -2,8 +2,8 @@
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
 // @version      1.0.0
-// @supportURL   
-// @homepageURL  
+// @supportURL   https://github.com/LanluZ/Diyibanzhu-Download
+// @homepageURL  https://github.com/LanluZ/Diyibanzhu-Download
 // @description  第一版主网下载器，因为网址随时在变，所以不做域名匹配
 // @author       LanluZ
 // @match        http://*/*
