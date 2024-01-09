@@ -129,16 +129,19 @@ function downloadDoc(){
     }else{
         downloadStatus++;
         page = document.body.innerHTML;
-        getList(0,0)
+        getList(0,0) //获取章节
 
-        //延时等待目录请求完毕(尚未实现自定义准备时间)
+        //延时等待目录请求完毕
         setTimeout(() => {
             //得到链接列表
             var link = getCataInfo(catalogueArr);
             console.log(catalogueArr);
             console.log(link);
             
-        }, 1500);
+            //开始下载
+            
+        }, 1000);
+
 
         // downloadFile("1" + ".html",page)
         
