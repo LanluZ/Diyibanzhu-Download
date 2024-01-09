@@ -23,6 +23,8 @@ function exsit(){
     if(document.getElementsByClassName("read start")[0].innerHTML == "从头开始阅读"){
         return true;
     }return false;
+
+    // 已废弃的匹配规则
     // if(url.match(/\//g).length-2 == 3 && document.title.match(/第一版主网/).length == 1){
     //     if(url.indexOf("_") == -1){
     //         return true;
@@ -44,9 +46,7 @@ function getInfo(){
 }
 
 //获取文章章节信息
-
 var catalogueArr = new Array();
-
 function getList(page,first){
 
     //获取页数
@@ -96,104 +96,8 @@ function getLink(list){
     }return (link);
 }
 
-//文本信息
-var conText = "";
-
-//获取文章内容
-function getContain(link){
-
-    //单页子页面爬取
-    async function getText(page){
-        //初始化
-        let linkCo ="http://" + link.substring(0, link.length-5) + "_" + page + ".html";  
-        let xhr =new XMLHttpRequest();
-        xhr.open("GET", linkCo);
-        xhr.responseType = "document";
-        xhr.send();
-        xhr.onload = function(){
-            if (xhr.status != 200){
-                alert("下载错误");
-            }else{
-                //存在性判断
-                if(xhr.response.getElementsByClassName("chapterinfo")[0]||xhr.response.getElementsByClassName("chapter-text")[0]){
-                    let tempText = "";
-
-                    //第一页
-                    if(page == 1){
-                        let tempFather = xhr.response.getElementsByClassName("chapterinfo")[0].childNodes;
-                        for(let i = 0; i < tempFather.length; i++){
-                            if(tempFather[i].nodeName == "BR")
-                                tempText += "\n"
-                            else
-                                tempText += tempFather[i].textContent;
-                        }//添加信息
-                    }//其他页
-                    else if(page != 1){
-                        let tempText = xhr.response.getElementsByClassName("chapter-text")[0].outerText;
-                        conText += tempText;
-                    }
-                    conText += tempText;
-                }
-            }
-        }
-    }
-
-
-    //懒得获取子页面页面数，暴力20页抓取
-    for(let i = 1; i <= 20; i++){
-        getText(i);
-    }
-
-
-}
-
-//文章排序(未实现|等待有缘人)
-function sortContain(){
-
-}
-
-//图片识别(未实现|等待有缘人)
-function ocrImg(){
-    
-}
-
-//输出文件
-function outFile(text){
-    //StreamSaver库运用
-    const blob = new Blob([text])
-    const fileStream = streamSaver.createWriteStream(getTitle() + '.txt', {
-    size: blob.size
-    })
-    const readableStream = blob.stream()
-    if (window.WritableStream && readableStream.pipeTo) {
-    return readableStream.pipeTo(fileStream)
-        .then(() => console.log('下载完成'))
-    }
-    window.writer = fileStream.getWriter()
-    const reader = readableStream.getReader()
-    const pump = () => reader.read()
-    .then(res => res.done
-        ? writer.close()
-        : writer.write(res.value).then(pump))
-    pump()
-}
-
-//标题倒计时事件
-function setTitle(remain){
-    let sourceTitle = document.title;
-    function setTitleTime(){
-        document.title = "[" + remain + "s]" + sourceTitle;
-        remain--;
-        if (remain <= 0){
-            clearInterval(timeID);
-            document.title = "[完毕]" + sourceTitle;
-        }
-    }
-    var timeID = setInterval(setTitleTime,1000);
-}
 
 //下载按钮事件
-
 //已下载状态标识
 var downloadStatus = 0
 
@@ -203,33 +107,7 @@ function downloadDoc(){
         alert("请勿重复点击！");
     }else{
         downloadStatus++;
-        getList(0,0);
-        alert("准备中，4秒后开始\n如果浏览器标题显示完成仍未开始下载请检查浏览器是否拦截弹窗");
-
-        //延时等待目录请求完毕(尚未实现自定义准备时间)
-        setTimeout(() => {
-            //得到链接列表
-            var link = getLink(catalogueArr);
-            console.log(catalogueArr);
-            console.log(link);
-            //显示倒计时
-            setTitle(Math.ceil((catalogueArr.length * 200 + 1000)/1000))
-
-            //延时等待内容请求完毕
-            setTimeout(() => {
-                //添加书籍信息
-                conText = getInfo();
-                
-                //添加书籍内容
-                for(let i = 0; i < link.length; i++){
-                    getContain(link[i]);
-                } 
-                //输出文件
-                setTimeout(() => {
-                    outFile(conText);
-                }, catalogueArr.length * 200 + 1000);
-            }, 1000);//评估下载时长
-        }, 4000);
+        
     }
 }
 
