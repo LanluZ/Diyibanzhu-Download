@@ -91,7 +91,7 @@ function getList(page,first){
 }
 
 //获取文章章节链接
-function getLink(list){
+function getCataInfo(list){
     let link = new Array();
     for (let i = 0;i < list.length; i++){
         link.push(window.location.host + list[i].getAttribute("href"));
@@ -161,7 +161,7 @@ function ocrImg(){
 
 //输出文件
 function outFile(text){
-    //StreamSaver库运用
+    //StreamSaver库
     const blob = new Blob([text])
     const fileStream = streamSaver.createWriteStream(getTitle() + '.txt', {
     size: blob.size
@@ -211,7 +211,7 @@ function downloadDoc(){
         //延时等待目录请求完毕(尚未实现自定义准备时间)
         setTimeout(() => {
             //得到链接列表
-            var link = getLink(catalogueArr);
+            var link = getCataInfo(catalogueArr);
             console.log(catalogueArr);
             console.log(link);
             //显示倒计时
