@@ -88,14 +88,35 @@ function getList(page,first){
 
 }
 
-//获取文章章节链接
-function getLink(list){
+//获取文章章节标题和链接
+function getCataInfo(list){
     let link = new Array();
     for (let i = 0;i < list.length; i++){
+        link.push(list[i].innerText);
         link.push(window.location.host + list[i].getAttribute("href"));
     }return (link);
 }
 
+
+//下载文件
+function downloadFile(fileName, content){
+    const blob = new Blob([content])
+    const fileStream = streamSaver.createWriteStream(fileName, {
+    size: blob.size
+    })
+    const readableStream = blob.stream()
+    if (window.WritableStream && readableStream.pipeTo) {
+    return readableStream.pipeTo(fileStream)
+        .then(() => console.log('下载完成'))
+    }
+    window.writer = fileStream.getWriter()
+    const reader = readableStream.getReader()
+    const pump = () => reader.read()
+    .then(res => res.done
+        ? writer.close()
+        : writer.write(res.value).then(pump))
+    pump()
+}
 
 //下载按钮事件
 //已下载状态标识
@@ -107,6 +128,19 @@ function downloadDoc(){
         alert("请勿重复点击！");
     }else{
         downloadStatus++;
+        page = document.body.innerHTML;
+        getList(0,0)
+
+        //延时等待目录请求完毕(尚未实现自定义准备时间)
+        setTimeout(() => {
+            //得到链接列表
+            var link = getCataInfo(catalogueArr);
+            console.log(catalogueArr);
+            console.log(link);
+            
+        }, 1500);
+
+        // downloadFile("1" + ".html",page)
         
     }
 }
