@@ -1,3 +1,4 @@
+42
 // ==UserScript==
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
@@ -19,11 +20,14 @@ var url = window.location.href;
 
 //判断网页是否为第一版主三级子页面
 function exsit(){
-    if(url.match(/\//g).length-2 == 3 && document.title.match(/第一版主网/).length == 1){
-        if(url.indexOf("_") == -1){
-            return true;
-        }
-    }   return false;
+    if(document.getElementsByClassName("read start")[0].innerHTML == "从头开始阅读"){
+        return true;
+    }return false;
+    // if(url.match(/\//g).length-2 == 3 && document.title.match(/第一版主网/).length == 1){
+    //     if(url.indexOf("_") == -1){
+    //         return true;
+    //     }
+    // }   return false;
     
 }
 
@@ -246,6 +250,7 @@ function layButton(){
     }
 }
 
+// 入口
 (function() {
     'use strict';   
 
