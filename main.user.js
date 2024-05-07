@@ -8,14 +8,19 @@
 // @author       LanluZ
 // @match        http://*/*
 // @match        https://*/*
-// @grant        unsafeWindow,GM_download
+// @grant        unsafeWindow
+// @grant        GM_download
 // @license      GNU GPLv3
 // @require      https://cdn.jsdelivr.net/npm/web-streams-polyfill@2.0.2/dist/ponyfill.min.js
 // @require      https://cdn.jsdelivr.net/gh/jimmywarting/StreamSaver.js/StreamSaver.js
 // @require      https://cdn.jsdelivr.net/gh/eligrey/Blob.js/Blob.js
 // ==/UserScript==
 
-var url = window.location.href;
+
+//获取文章章节信息
+let catalogueArr = [];
+
+let url = window.location.href;
 
 //判断网页是否为第一版主三级子页面
 function exist() {
@@ -34,16 +39,16 @@ function getInfo() {
     );
 }
 
-//获取文章章节信息
-var catalogueArr = new Array();
 
 function getList(page, first) {
-
     //获取页数
     function getNumOfPage() {
-        let numOfPageOrigin = document.getElementsByClassName("page")[1].childNodes[4].textContent;
-        let numOfPage = numOfPageOrigin.match(/\d+/g)[1];
-        return numOfPage;
+        // 判断是否多页
+        let numOfPageOrigin = document.getElementsByClassName("pagelistbox")[0]
+        if (numOfPageOrigin == null){
+            return 1;
+        }
+        return numOfPageOrigin.match(/\d+/g)[1];
     }
 
     //翻页
@@ -54,7 +59,7 @@ function getList(page, first) {
         xhr.responseType = "document";
         xhr.send();
         xhr.onload = function () {
-            if (xhr.status != 200) {
+            if (xhr.status !== 200) {
                 alert("下载错误");
             } else {
                 let temp = xhr.response.getElementsByClassName("list")[1].getElementsByTagName("a");
@@ -66,22 +71,22 @@ function getList(page, first) {
     }
 
     //递减式翻页法
-    if (first == 0) {
+    if (first === 0) {
         for (let i = 1; i <= getNumOfPage(); i++) {
             turnPage(i, 1);
         }
         return;
-    } else if (first == 1) {
+    } else if (first === 1) {
         turnPage(page, 2);
-    } else if (first == 2) {
+    } else if (first === 2) {
         return;
     }
 
 }
 
 //获取文章章节标题和链接
-function getCataInfo(list) {
-    let link = new Array();
+function getCatalogueInfo(list) {
+    let link = [];
     for (let i = 0; i < list.length; i++) {
         link.push(list[i].innerText);
         link.push(window.location.host + list[i].getAttribute("href"));
@@ -90,34 +95,20 @@ function getCataInfo(list) {
 }
 
 
-//下载按钮事件
-//已下载状态标识
-var downloadStatus = 0
+//下载按钮点击事件
+function buttonClicked() {
+    getList(0, 0) //获取章节
 
-function downloadDoc() {
+    //延时等待目录请求完毕
+    setTimeout(() => {
+        //得到链接列表
+        let link = getCatalogueInfo(catalogueArr);
+        console.log(catalogueArr);
+        console.log(link);
 
-    if (downloadStatus != 0) {
-        alert("请勿重复点击！");
-    } else {
-        downloadStatus++;
-        page = document.body.innerHTML;
-        getList(0, 0) //获取章节
+        //开始下载
 
-        //延时等待目录请求完毕
-        setTimeout(() => {
-            //得到链接列表
-            var link = getCataInfo(catalogueArr);
-            console.log(catalogueArr);
-            console.log(link);
-
-            //开始下载
-
-        }, 1000);
-
-
-        // downloadFile("1" + ".html",page)
-
-    }
+    }, 1000);
 }
 
 //按钮创建
@@ -125,9 +116,9 @@ function layButton() {
     if (document.getElementsByClassName("ft")[0]) {
 
         let downloadBtn = document.createElement("div")
-        downloadBtn.innerHTML = "<tr><td width='50%'><a class='read start'>下载</a></td></tr>";
-        downloadBtn.onclick = function () {
-            downloadDoc();
+        downloadBtn.innerHTML = "<tr><td style='width: 50px'><a class='read start'>下载</a></td></tr>";
+        downloadBtn.onclick = function () { // 点击处理事件
+            buttonClicked();
         };
 
         let ftNode = document.getElementsByClassName("ft")[0].childNodes[1].childNodes[1];
@@ -137,13 +128,10 @@ function layButton() {
     }
 }
 
-// 入口
 (function () {
     'use strict';
-
     //放置按钮
     if (exist()) {
         layButton();
     }
-
 })()
