@@ -13,7 +13,6 @@
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @license      GNU GPLv3
-// @require      https://cdn.jsdelivr.net/npm/web-streams-polyfill@2.0.2/dist/ponyfill.min.js
 // @require      https://cdn.jsdelivr.net/gh/jimmywarting/StreamSaver.js/StreamSaver.js
 // @require      https://cdn.jsdelivr.net/gh/eligrey/Blob.js/Blob.js
 // ==/UserScript==
@@ -37,17 +36,25 @@ function buttonClicked() {
     for (let i = 0; i < catalogueInfoList.length; i++) {
         // 发送请求
         let download_url = catalogueInfoList[i].href
-        GM_download({
-            url: download_url,
-            name: title + catalogueInfoList[i].text + ".txt",
-            timeout: 10000,
-            onerror: function (err) {
-                console.log(download_url)
-                console.log(err)
-                console.log("下载失败")
-            }
-        })
 
+        // 发送请求
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", download_url);
+        xhr.responseType = "document";
+        xhr.send();
+        xhr.onload = function () {
+            if (xhr.status !== 200) {
+                alert("下载错误");
+            } else {
+                // 下载单网页页面
+                const element = xhr.response.createElement("a");
+                const file = new Blob([xhr.response.documentElement.innerHTML], {type: "text/plain"});
+                element.href = URL.createObjectURL(file);
+                element.download = catalogueInfoList[i].name + ".txt";
+                document.body.appendChild(element);
+                element.click();
+            }
+        }
     }
 }
 
