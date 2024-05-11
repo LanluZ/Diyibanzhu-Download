@@ -10,13 +10,15 @@
 // @match        https://*/*
 // @grant        unsafeWindow
 // @grant        GM_download
+// @grant        GM_xmlhttpRequest
+// @grant        unsafeWindow
 // @license      GNU GPLv3
 // @require      https://cdn.jsdelivr.net/npm/web-streams-polyfill@2.0.2/dist/ponyfill.min.js
 // @require      https://cdn.jsdelivr.net/gh/jimmywarting/StreamSaver.js/StreamSaver.js
 // @require      https://cdn.jsdelivr.net/gh/eligrey/Blob.js/Blob.js
 // ==/UserScript==
 
-let url = window.location.href
+let hostname = window.location.hostname
 
 //下载按钮点击事件
 function buttonClicked() {
@@ -28,12 +30,27 @@ function buttonClicked() {
     let catalogueFinalPage = getCatalogueFinalPage()
     // 获取文章章节信息
     let catalogueInfoList = getCatalogueInfo(document)
-    // 下载该页面所有文件
+
     console.log(catalogueInfoList)
+
+    // 下载内容
     for (let i = 0; i < catalogueInfoList.length; i++) {
-        console.log(catalogueInfoList[i].text)
+        // 发送请求
+        let download_url = catalogueInfoList[i].href
+        GM_download({
+            url: download_url,
+            name: title + catalogueInfoList[i].text + ".txt",
+            timeout: 10000,
+            onerror: function (err) {
+                console.log(download_url)
+                console.log(err)
+                console.log("下载失败")
+            }
+        })
+
     }
 }
+
 
 // 获取目录多页面
 function getCatalogueFinalPage() {
@@ -43,7 +60,8 @@ function getCatalogueFinalPage() {
         return 1; // 只有一页
     } else {
         // href内末尾数字为最终页码
-        return endPage.href.match(/\d+$/)[0]
+        let endPageNum = endPage.href.match(/-?[1-9]\d*/g)
+        return endPageNum[endPageNum.length - 1]
     }
 }
 
