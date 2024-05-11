@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
+// @version      2.0.0
 // @supportURL   https://github.com/LanluZ/Diyibanzhu-Download
 // @homepageURL  https://github.com/LanluZ/Diyibanzhu-Download
-// @description  第一版主网下载器，因为网址随时在变，所以不做域名匹配
+// @description  第一版主网下载器，因为网址并不固定，所以不做域名匹配
 // @author       LanluZ
 // @match        http://*/*
 // @match        https://*/*
@@ -24,29 +24,27 @@ function buttonClicked() {
     let title = getTitle()
     let info = getInfo()
 
+    // 获取目录最终页码
+    let catalogueFinalPage = getCatalogueFinalPage()
     // 获取文章章节信息
-    console.log(getCatalogueInfo(document))
-
-    //延时等待目录请求完毕
-    setTimeout(() => {
-        //得到链接列表
-
-        //开始下载
-
-    }, 500)
+    let catalogueInfoList = getCatalogueInfo(document)
+    // 下载该页面所有文件
+    console.log(catalogueInfoList)
+    for (let i = 0; i < catalogueInfoList.length; i++) {
+        console.log(catalogueInfoList[i].text)
+    }
 }
 
-
-//获取文章标题
-function getTitle() {
-    return (document.getElementsByTagName("h1")[0].innerHTML)
-}
-
-//获取文章相关信息
-function getInfo() {
-    return (
-        document.getElementsByClassName("info")[0].innerHTML.replace(/<br>/g, "")
-    );
+// 获取目录多页面
+function getCatalogueFinalPage() {
+    // 判断是否多页
+    let endPage = document.getElementsByClassName("endPage")[0]
+    if (endPage == null) {
+        return 1; // 只有一页
+    } else {
+        // href内末尾数字为最终页码
+        return endPage.href.match(/\d+$/)[0]
+    }
 }
 
 
@@ -64,8 +62,7 @@ function getCatalogueInfo(catalogueDocument) {
         let text = liList[i].getElementsByTagName("a")[0].innerText
         // 保存结果
         result.push({
-            href: href,
-            text: text
+            href: href, text: text
         })
     }
 
@@ -77,6 +74,15 @@ function exist() {
     return document.getElementsByClassName("read start")[0].innerHTML === "从头开始阅读"
 }
 
+//获取文章标题
+function getTitle() {
+    return (document.getElementsByTagName("h1")[0].innerHTML)
+}
+
+//获取文章相关信息
+function getInfo() {
+    return (document.getElementsByClassName("info")[0].innerHTML.replace(/<br>/g, ""));
+}
 
 //按钮创建
 function layButton() {
