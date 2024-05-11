@@ -16,20 +16,30 @@
 // @require      https://cdn.jsdelivr.net/gh/eligrey/Blob.js/Blob.js
 // ==/UserScript==
 
+let url = window.location.href
 
-//获取文章章节信息
-let catalogueArr = [];
+//下载按钮点击事件
+function buttonClicked() {
+    // 获取文章基础信息
+    let title = getTitle()
+    let info = getInfo()
 
-let url = window.location.href;
+    // 获取文章章节信息
+    console.log(getCatalogueInfo(document))
 
-//判断网页是否为第一版主三级子页面
-function exist() {
-    return document.getElementsByClassName("read start")[0].innerHTML === "从头开始阅读";
+    //延时等待目录请求完毕
+    setTimeout(() => {
+        //得到链接列表
+
+        //开始下载
+
+    }, 500)
 }
+
 
 //获取文章标题
 function getTitle() {
-    return (document.getElementsByTagName("h1")[0].innerHTML);
+    return (document.getElementsByTagName("h1")[0].innerHTML)
 }
 
 //获取文章相关信息
@@ -40,90 +50,47 @@ function getInfo() {
 }
 
 
-function getList(page, first) {
-    //获取页数
-    function getNumOfPage() {
-        // 判断是否多页
-        let numOfPageOrigin = document.getElementsByClassName("pagelistbox")[0]
-        if (numOfPageOrigin == null){
-            return 1;
-        }
-        return numOfPageOrigin.match(/\d+/g)[1];
+//获取指定目录页章节标题链接
+function getCatalogueInfo(catalogueDocument) {
+    // 结果保存
+    let result = []
+    // 大目录元素
+    let catalogueList = catalogueDocument.getElementsByClassName("list")[1]
+    // 获取子节点li
+    let liList = catalogueList.getElementsByTagName("li")
+    // 获取节点li内href与innerText
+    for (let i = 0; i < liList.length; i++) {
+        let href = liList[i].getElementsByTagName("a")[0].href
+        let text = liList[i].getElementsByTagName("a")[0].innerText
+        // 保存结果
+        result.push({
+            href: href,
+            text: text
+        })
     }
 
-    //翻页
-    async function turnPage(page) {
-        let uurl = url.substring(0, url.length - 1) + "_" + page + "/";
-        let xhr = new XMLHttpRequest();
-        xhr.open("GET", uurl);
-        xhr.responseType = "document";
-        xhr.send();
-        xhr.onload = function () {
-            if (xhr.status !== 200) {
-                alert("下载错误");
-            } else {
-                let temp = xhr.response.getElementsByClassName("list")[1].getElementsByTagName("a");
-                for (let i = 0; i < temp.length; i++) {
-                    catalogueArr.push(temp[i]);
-                }
-            }
-        }
-    }
-
-    //递减式翻页法
-    if (first === 0) {
-        for (let i = 1; i <= getNumOfPage(); i++) {
-            turnPage(i, 1);
-        }
-        return;
-    } else if (first === 1) {
-        turnPage(page, 2);
-    } else if (first === 2) {
-        return;
-    }
-
+    return result
 }
 
-//获取文章章节标题和链接
-function getCatalogueInfo(list) {
-    let link = [];
-    for (let i = 0; i < list.length; i++) {
-        link.push(list[i].innerText);
-        link.push(window.location.host + list[i].getAttribute("href"));
-    }
-    return (link);
+//判断网页是否为第一版主三级子页面
+function exist() {
+    return document.getElementsByClassName("read start")[0].innerHTML === "从头开始阅读"
 }
 
-
-//下载按钮点击事件
-function buttonClicked() {
-    getList(0, 0) //获取章节
-
-    //延时等待目录请求完毕
-    setTimeout(() => {
-        //得到链接列表
-        let link = getCatalogueInfo(catalogueArr);
-        console.log(catalogueArr);
-        console.log(link);
-
-        //开始下载
-
-    }, 1000);
-}
 
 //按钮创建
 function layButton() {
     if (document.getElementsByClassName("ft")[0]) {
 
         let downloadBtn = document.createElement("div")
-        downloadBtn.innerHTML = "<tr><td style='width: 50px'><a class='read start'>下载</a></td></tr>";
+        downloadBtn.innerHTML = "<tr><td style='width: 50px'><a class='read start'>下载</a></td></tr>"
         downloadBtn.onclick = function () { // 点击处理事件
             buttonClicked();
         };
 
-        let ftNode = document.getElementsByClassName("ft")[0].childNodes[1].childNodes[1];
+        let ftNode = document.getElementsByClassName("ft")[0].childNodes[1].childNodes[1]
 
-        ftNode.appendChild(downloadBtn);
+        ftNode.appendChild(downloadBtn)
 
     }
 }
