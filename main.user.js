@@ -16,6 +16,7 @@
 // @require      https://cdn.jsdelivr.net/gh/jimmywarting/StreamSaver.js/StreamSaver.js
 // @require      https://cdn.jsdelivr.net/gh/eligrey/Blob.js/Blob.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js
+// @require
 // ==/UserScript==
 
 let hostname = window.location.hostname
