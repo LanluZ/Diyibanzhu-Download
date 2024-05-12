@@ -38,10 +38,7 @@ function buttonClicked() {
         let download_url = catalogueInfoList[i].href
 
         // 发送请求
-        let xhr = new XMLHttpRequest();
-        xhr.open("GET", download_url);
-        xhr.responseType = "document";
-        xhr.send();
+        let xhr = sendRequest(download_url)
         xhr.onload = function () {
             if (xhr.status !== 200) {
                 alert("下载错误");
@@ -51,26 +48,35 @@ function buttonClicked() {
 
                 // 向内容页发送请求
                 for (let j = 0; j < contentInfoList.length; j++) {
-                    let content_xhr = new XMLHttpRequest()
-                    content_xhr.open("GET", contentInfoList[j].href)
-                    content_xhr.responseType = "document"
-                    content_xhr.send();
-                    content_xhr.onload = function () {
-                        // 等待500ms
-                        setTimeout(function () {
-                            // 下载单网页页面
-                            const element = content_xhr.response.createElement("a")
-                            const file = new Blob([content_xhr.response.documentElement.innerHTML], {type: "text/plain"})
-                            element.href = URL.createObjectURL(file)
-                            element.download = catalogueInfoList[i].text + "-" + contentInfoList[j].text + ".html"
-                            document.body.appendChild(element)
-                            element.click()
-                        })
+                    let content_xhr = sendRequest(contentInfoList[j].href)
+                    if (content_xhr.status !== 200) {
+                        alert("下载错误");
+                    } else {
+                        content_xhr.onload = function () {
+                            setTimeout(function () {
+                                // 下载单网页页面
+                                const element = content_xhr.response.createElement("a")
+                                const file = new Blob([content_xhr.response.documentElement.innerHTML], {type: "text/plain"})
+                                element.href = URL.createObjectURL(file)
+                                element.download = catalogueInfoList[i].text + "-" + contentInfoList[j].text + ".html"
+                                document.body.appendChild(element)
+                                element.click()
+                            }, 1000)
+                        }
                     }
                 }
             }
         }
     }
+}
+
+// 发送xmlHttp请求
+function sendRequest(url) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", url);
+    xhr.responseType = "document";
+    xhr.send();
+    return xhr
 }
 
 // 获取指定内容页章节标题链接
