@@ -46,18 +46,49 @@ function buttonClicked() {
             if (xhr.status !== 200) {
                 alert("下载错误");
             } else {
-                // 下载单网页页面
-                const element = xhr.response.createElement("a");
-                const file = new Blob([xhr.response.documentElement.innerHTML], {type: "text/plain"});
-                element.href = URL.createObjectURL(file);
-                element.download = catalogueInfoList[i].text + ".data";
-                document.body.appendChild(element);
-                element.click();
+                // 获取内容页目录链接
+                let contentInfoList = getContentInfo(xhr.response)
+
+                // 向内容页发送请求
+                for (let j = 0; j < contentInfoList.length; j++) {
+                    let content_xhr = new XMLHttpRequest()
+                    content_xhr.open("GET", contentInfoList[j].href)
+                    content_xhr.send();
+                    content_xhr.onload = function () {
+                        // 下载单网页页面
+                        const element = xhr.response.createElement("a")
+                        const file = new Blob([xhr.response.documentElement.innerHTML], {type: "text/plain"})
+                        element.href = URL.createObjectURL(file)
+                        element.download = catalogueInfoList[i].text + "-" + contentInfoList[j].text + ".html"
+                        document.body.appendChild(element)
+                        element.click()
+                    }
+                }
             }
         }
     }
 }
 
+// 获取指定内容页章节标题链接
+function getContentInfo(contentDocument) {
+    // 结果保存
+    let result = []
+    // 大目录元素
+    let catalogueList = contentDocument.getElementsByClassName("chapterPages")[0]
+    // 获取子节点a
+    let aList = catalogueList.getElementsByTagName("a")
+    // 获取节点a内href与innerText
+    for (let i = 0; i < aList.length; i++) {
+        let href = aList[i].href
+        let text = aList[i].innerText
+        // 保存结果
+        result.push({
+            href: href, text: text
+        })
+    }
+    // 返回结果
+    return result
+}
 
 // 获取目录多页面
 function getCatalogueFinalPage() {
