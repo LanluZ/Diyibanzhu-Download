@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
-// @version      2.0.0
+// @version      3.0.0
 // @supportURL   https://github.com/LanluZ/Diyibanzhu-Download
 // @homepageURL  https://github.com/LanluZ/Diyibanzhu-Download
 // @description  第一版主网下载器，因为网址并不固定，所以不做域名匹配
@@ -15,6 +15,7 @@
 // @license      GNU GPLv3
 // @require      https://cdn.jsdelivr.net/gh/jimmywarting/StreamSaver.js/StreamSaver.js
 // @require      https://cdn.jsdelivr.net/gh/eligrey/Blob.js/Blob.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js
 // ==/UserScript==
 
 let hostname = window.location.hostname
@@ -30,8 +31,6 @@ function buttonClicked() {
     // 获取文章章节信息
     let catalogueInfoList = getCatalogueInfo(document)
 
-    console.log(catalogueInfoList)
-
     // 下载内容
     for (let i = 0; i < catalogueInfoList.length; i++) {
         // 发送请求
@@ -41,7 +40,7 @@ function buttonClicked() {
         let xhr = sendRequest(download_url)
         xhr.onload = function () {
             if (xhr.status !== 200) {
-                alert("下载错误");
+                console.log("目录页下载错误 " + "status:" + xhr.status);
             } else {
                 // 获取内容页目录链接
                 let contentInfoList = getContentInfo(xhr.response)
@@ -49,21 +48,30 @@ function buttonClicked() {
                 // 向内容页发送请求
                 for (let j = 0; j < contentInfoList.length; j++) {
                     let content_xhr = sendRequest(contentInfoList[j].href)
-                    if (content_xhr.status !== 200) {
-                        alert("下载错误");
-                    } else {
-                        content_xhr.onload = function () {
-                            setTimeout(function () {
-                                // 下载单网页页面
-                                const element = content_xhr.response.createElement("a")
-                                const file = new Blob([content_xhr.response.documentElement.innerHTML], {type: "text/plain"})
-                                element.href = URL.createObjectURL(file)
-                                element.download = catalogueInfoList[i].text + "-" + contentInfoList[j].text + ".html"
-                                document.body.appendChild(element)
-                                element.click()
-                            }, 1000)
+                    content_xhr.onload = function () {
+                        if (content_xhr.status !== 200) {
+                            console.log("内容页下载错误 " + "status:" + content_xhr.status);
+                        } else {
+                            console.log("下载开始 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
+
+                            // 保存设置
+                            let opt = {
+                                margin: 1,
+                                filename: catalogueInfoList[i].text + '-' + contentInfoList[j].text + '.pdf',
+                                image: {
+                                    type: 'png',
+                                }
+                            }
+
+                            // 保存但网页页面为pdf
+                            let pdf_obj = html2pdf().set(opt).from(content_xhr.response.body)
+
+                            console.log(pdf_obj)
+
+                            pdf_obj.save()
                         }
                     }
+
                 }
             }
         }

@@ -1,25 +1,15 @@
 import os
 import sys
-
-import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
-
-path = os.path.dirname(sys.argv[0])
-font_path = os.path.join(path, 'data', 'font')
+import requests
 
 
 def main():
-    ttf_path = os.path.join(font_path, 'font.ttf')
+    img_url = 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png'
 
-    # 载入字体并用改字体输出指定编码文字
-    font = fm.FontProperties(fname=ttf_path)
+    img_data = requests.get(img_url).content
 
-    fig, ax = plt.subplots()
-
-    text = ''
-    ax.text(0.5, 0.5, text, fontproperties=font)
-
-    plt.show()
+    with open("temp.png", 'wb') as f:
+        f.write(img_data)
 
 
 if __name__ == '__main__':
