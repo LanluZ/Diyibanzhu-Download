@@ -53,6 +53,7 @@ function buttonClicked() {
                 for (let j = 0; j < contentInfoList.length; j++) {
                     let content_xhr = new XMLHttpRequest()
                     content_xhr.open("GET", contentInfoList[j].href)
+                    content_xhr.responseType = "document"
                     content_xhr.send();
                     content_xhr.onload = function () {
                         // 下载单网页页面
