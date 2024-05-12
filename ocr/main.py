@@ -31,7 +31,7 @@ def main():
             with open(os.path.join(data_pdf_path, filename + ".html"), 'w') as f:
                 f.write(soup.prettify())
 
-            print(1)
+            print(filename, "done!")
 
 
 if __name__ == '__main__':
