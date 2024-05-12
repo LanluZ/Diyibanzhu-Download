@@ -56,13 +56,16 @@ function buttonClicked() {
                     content_xhr.responseType = "document"
                     content_xhr.send();
                     content_xhr.onload = function () {
-                        // 下载单网页页面
-                        const element = content_xhr.response.createElement("a")
-                        const file = new Blob([content_xhr.response.documentElement.innerHTML], {type: "text/plain"})
-                        element.href = URL.createObjectURL(file)
-                        element.download = catalogueInfoList[i].text + "-" + contentInfoList[j].text + ".html"
-                        document.body.appendChild(element)
-                        element.click()
+                        // 等待500ms
+                        setTimeout(function () {
+                            // 下载单网页页面
+                            const element = content_xhr.response.createElement("a")
+                            const file = new Blob([content_xhr.response.documentElement.innerHTML], {type: "text/plain"})
+                            element.href = URL.createObjectURL(file)
+                            element.download = catalogueInfoList[i].text + "-" + contentInfoList[j].text + ".html"
+                            document.body.appendChild(element)
+                            element.click()
+                        })
                     }
                 }
             }
