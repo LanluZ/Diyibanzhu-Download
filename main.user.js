@@ -50,7 +50,7 @@ function buttonClicked() {
                 const element = xhr.response.createElement("a");
                 const file = new Blob([xhr.response.documentElement.innerHTML], {type: "text/plain"});
                 element.href = URL.createObjectURL(file);
-                element.download = catalogueInfoList[i].name + ".txt";
+                element.download = catalogueInfoList[i].text + ".data";
                 document.body.appendChild(element);
                 element.click();
             }
