@@ -53,9 +53,6 @@ function buttonClicked() {
                 for (let j = 0; j < contentInfoList.length; j++) {
                     let content_xhr = new XMLHttpRequest()
                     content_xhr.open("GET", contentInfoList[j].href)
-
-                    console.log(contentInfoList[j].href)
-
                     content_xhr.send();
                     content_xhr.onload = function () {
                         // 下载单网页页面
@@ -64,7 +61,7 @@ function buttonClicked() {
                         element.href = URL.createObjectURL(file)
                         element.download = catalogueInfoList[i].text + "-" + contentInfoList[j].text + ".html"
                         document.body.appendChild(element)
-                        // element.click()
+                        element.click()
                     }
                 }
             }
