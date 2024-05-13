@@ -64,7 +64,7 @@ function buttonClicked() {
                             // 保存设置
                             let opt = {
                                 margin: 1,
-                                filename: catalogueInfoList[i].text + '-' + contentInfoList[j].text + '.pdf',
+                                filename: title + "-" + catalogueInfoList[i].text + '-' + contentInfoList[j].text + '.pdf',
                                 image: {
                                     type: 'png',
                                 }
