@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
-// @version      3.0.0
+// @version      3.1.0
 // @supportURL   https://github.com/LanluZ/Diyibanzhu-Download
 // @homepageURL  https://github.com/LanluZ/Diyibanzhu-Download
 // @description  第一版主网下载器，因为网址并不固定，所以不做域名匹配
@@ -21,6 +21,7 @@
 
 let hostname = window.location.hostname
 
+
 //下载按钮点击事件
 function buttonClicked() {
     // 获取文章基础信息
@@ -32,8 +33,17 @@ function buttonClicked() {
     // 获取文章章节信息
     let catalogueInfoList = getCatalogueInfo(document)
 
+    // 读取勾选框信息
+    let checkboxList = document.getElementsByClassName("downloadCheckbox")
+
+
     // 下载内容
     for (let i = 0; i < catalogueInfoList.length; i++) {
+        // 判断是否选中
+        if (!checkboxList[i].checked) {
+            continue
+        }
+
         // 发送请求
         let download_url = catalogueInfoList[i].href
 
@@ -78,6 +88,7 @@ function buttonClicked() {
         }
     }
 }
+
 
 // 发送xmlHttp请求
 function sendRequest(url) {
@@ -176,10 +187,25 @@ function layButton() {
     }
 }
 
+//勾选框创建
+function layCheckbox() {
+    let catalogueList = document.getElementsByClassName("list")[1]
+    // 获取子节点li
+    let liList = catalogueList.getElementsByTagName("li")
+    // 每个li前面添加勾选框
+    for (let i = 0; i < liList.length; i++) {
+        let checkbox = document.createElement("input")
+        checkbox.className = "downloadCheckbox"
+        checkbox.type = "checkbox"
+        liList[i].insertBefore(checkbox, liList[i].firstChild)
+    }
+}
+
 (function () {
     'use strict';
     //放置按钮
     if (exist()) {
-        layButton();
+        layButton()
+        layCheckbox()
     }
 })()
