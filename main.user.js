@@ -64,7 +64,7 @@ function buttonClicked() {
                             // 保存设置
                             let opt = {
                                 margin: 1,
-                                filename: title + "-" + catalogueInfoList[i].text + '-' + contentInfoList[j].text + '.pdf',
+                                filename: title + "," + catalogueInfoList[i].text + ',' + contentInfoList[j].text + '.pdf',
                                 image: {
                                     type: 'png',
                                 }
@@ -72,9 +72,6 @@ function buttonClicked() {
 
                             // 保存但网页页面为pdf
                             let pdf_obj = html2pdf().set(opt).from(content_xhr.response.body)
-
-                            console.log(pdf_obj)
-
                             pdf_obj.save()
                         }
                     }
