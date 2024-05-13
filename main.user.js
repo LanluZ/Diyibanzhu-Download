@@ -19,8 +19,6 @@
 // @require
 // ==/UserScript==
 
-let hostname = window.location.hostname
-
 
 //下载按钮点击事件
 function buttonClicked() {
@@ -28,8 +26,6 @@ function buttonClicked() {
     let title = getTitle()
     let info = getInfo()
 
-    // 获取目录最终页码
-    let catalogueFinalPage = getCatalogueFinalPage()
     // 获取文章章节信息
     let catalogueInfoList = getCatalogueInfo(document)
 
@@ -119,20 +115,6 @@ function getContentInfo(contentDocument) {
     // 返回结果
     return result
 }
-
-// 获取目录多页面
-function getCatalogueFinalPage() {
-    // 判断是否多页
-    let endPage = document.getElementsByClassName("endPage")[0]
-    if (endPage == null) {
-        return 1; // 只有一页
-    } else {
-        // href内末尾数字为最终页码
-        let endPageNum = endPage.href.match(/-?[1-9]\d*/g)
-        return endPageNum[endPageNum.length - 1]
-    }
-}
-
 
 //获取指定目录页章节标题链接
 function getCatalogueInfo(catalogueDocument) {
