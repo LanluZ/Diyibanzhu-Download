@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
-// @version      3.1.0
+// @version      3.2.0
 // @supportURL   https://github.com/LanluZ/Diyibanzhu-Download
 // @homepageURL  https://github.com/LanluZ/Diyibanzhu-Download
 // @description  第一版主网下载器，因为网址并不固定，所以不做域名匹配
@@ -61,6 +61,10 @@ function buttonClicked() {
                         } else {
                             console.log("下载开始 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
 
+                            // 删除多余标签
+                            content_xhr.response = removeElement(content_xhr.response, "neirong")
+                            console.log("解析完成 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
+
                             // 保存设置
                             let opt = {
                                 margin: 1,
@@ -82,6 +86,67 @@ function buttonClicked() {
     }
 }
 
+// 删除指定document多余元素
+function removeElement(document, className) {
+    try {
+        // 寻找目标标签
+        let aimTag = document.querySelector('.' + className);
+        if (!aimTag) {
+            console.log("未找到目标标签");
+            return document;
+        }
+
+        // 寻找目标标签之前标签
+        let prevTags = []
+        let currentNode = aimTag
+        while (currentNode.previousElementSibling || currentNode.parentElement) {
+            if (currentNode.previousElementSibling) {
+                currentNode = currentNode.previousElementSibling;
+                prevTags.unshift(currentNode);
+            } else if (currentNode.parentElement) {
+                currentNode = currentNode.parentElement;
+            }
+        }
+
+        // 寻找目标标签之后标签
+        let nextTags = []
+        currentNode = aimTag
+        while (currentNode.nextElementSibling || currentNode.parentElement) {
+            if (currentNode.nextElementSibling) {
+                currentNode = currentNode.nextElementSibling;
+                nextTags.push(currentNode);
+            } else if (currentNode.parentElement) {
+                currentNode = currentNode.parentElement;
+            }
+        }
+
+        // 寻找目标标签父标签
+        let parentTags = [];
+        currentNode = aimTag;
+        while (currentNode.parentElement) {
+            parentTags.push(currentNode.parentElement);
+            currentNode = currentNode.parentElement;
+        }
+
+        // 删除前标签中非父标签和非head标签
+        for (let i = 0; i < prevTags.length; i++) {
+            if (!parentTags.includes(prevTags[i]) && !prevTags[i].classList.contains('head')) {
+                prevTags[i].remove();
+            }
+        }
+
+        // 删除后标签
+        for (let i = 0; i < nextTags.length; i++) {
+            nextTags[i].remove();
+        }
+
+
+    } catch (e) {
+        console.log("解析错误:", e);
+    }
+
+    return document;
+}
 
 // 发送xmlHttp请求
 function sendRequest(url) {
