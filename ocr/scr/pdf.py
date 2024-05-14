@@ -41,4 +41,4 @@ def convert_batch_pdf2image(data_pdf_path, data_image_path, poppler_path):
             y_size += image.size[1]
 
         # 保存图像
-        result_image.save(os.path.join(data_image_path, f'{title},{subtitle},{page}.jpg'))
+        result_image.save(os.path.join(data_image_path, f'{title},{subtitle},{page}.png'))
