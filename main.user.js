@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
-// @version      3.2.0
+// @version      3.2.1
 // @supportURL   https://github.com/LanluZ/Diyibanzhu-Download
 // @homepageURL  https://github.com/LanluZ/Diyibanzhu-Download
 // @description  第一版主网下载器，因为网址并不固定，所以不做域名匹配
@@ -59,11 +59,11 @@ function buttonClicked() {
                         if (content_xhr.status !== 200) {
                             console.log("内容页下载错误 " + "status:" + content_xhr.status);
                         } else {
-                            console.log("下载开始 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
+                            console.log("> 下载开始 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
 
                             // 删除多余标签
                             content_xhr.response = removeElement(content_xhr.response, "neirong")
-                            console.log("解析完成 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
+                            console.log(">>解析完成 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
 
                             // 保存设置
                             let opt = {
