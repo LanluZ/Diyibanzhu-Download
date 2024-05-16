@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
-// @version      3.2.1
+// @version      3.3.0
 // @supportURL   https://github.com/LanluZ/Diyibanzhu-Download
 // @homepageURL  https://github.com/LanluZ/Diyibanzhu-Download
 // @description  第一版主网下载器，因为网址并不固定，所以不做域名匹配
@@ -21,7 +21,7 @@
 
 
 //下载按钮点击事件
-function buttonClicked() {
+function downloadButtonClicked() {
     // 获取文章基础信息
     let title = getTitle()
     let info = getInfo()
@@ -84,6 +84,22 @@ function buttonClicked() {
             }
         }
     }
+}
+
+// 快速搜索按钮点击事件
+function searchButtonClicked() {
+    let title = getTitle()
+    let info = getInfo()
+    // 信息输出
+    console.log(title)
+    console.log(info)
+
+    // title字符串转UFT-8
+    title = encodeURIComponent(title)
+
+    // 打开新标签页通过谷歌搜索title内容
+    window.open("https://www.google.com/search?q=" + title)
+
 }
 
 // 删除指定document多余元素
@@ -214,20 +230,34 @@ function getInfo() {
     return (document.getElementsByClassName("info")[0].innerHTML.replace(/<br>/g, ""));
 }
 
-//按钮创建
-function layButton() {
+//下载按钮创建
+function layDownloadButton() {
     if (document.getElementsByClassName("ft")[0]) {
 
         let downloadBtn = document.createElement("div")
         downloadBtn.innerHTML = "<tr><td style='width: 50px'><a class='read start'>下载</a></td></tr>"
         downloadBtn.onclick = function () { // 点击处理事件
-            buttonClicked();
+            downloadButtonClicked();
         };
 
         let ftNode = document.getElementsByClassName("ft")[0].childNodes[1].childNodes[1]
 
         ftNode.appendChild(downloadBtn)
 
+    }
+}
+
+//搜索按钮创建
+function laySearchButton() {
+    if (document.getElementsByClassName("ft")[0]) {
+        let searchBtn = document.createElement("div")
+        searchBtn.innerHTML = "<tr><td style='width: 50px'><a class='read start'>搜索</a></td></tr>"
+        searchBtn.onclick = function () { // 点击处理事件
+            searchButtonClicked();
+        };
+        let ftNode = document.getElementsByClassName("ft")[0].childNodes[1].childNodes[1]
+
+        ftNode.appendChild(searchBtn)
     }
 }
 
@@ -249,7 +279,8 @@ function layCheckbox() {
     'use strict';
     //放置按钮
     if (exist()) {
-        layButton()
+        layDownloadButton()
+        laySearchButton()
         layCheckbox()
     }
 })()
