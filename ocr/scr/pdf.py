@@ -1,8 +1,6 @@
 import os
 import pdf2image
 
-from PIL import Image
-
 
 # 批量转化pdf到image
 def convert_batch_pdf2image(data_pdf_path, data_image_path, poppler_path):
@@ -14,10 +12,14 @@ def convert_batch_pdf2image(data_pdf_path, data_image_path, poppler_path):
         subtitle = pdf_name.split(',')[1]  # 子标题
         page = pdf_name.split(',')[2].split('.')[0]  # 页码
 
+        # 创建子图片文件夹
+        if not os.path.exists(os.path.join(data_image_path, f"{title},{subtitle}")):
+            os.makedirs(os.path.join(data_image_path, f"{title},{subtitle}"))
+
         # 信息输出
         print(f'> 载入文件 {title},{subtitle},{page}')
 
-        # 拼接pdf页面为长图
+        # 转化pdf
         pdf_file_path = os.path.join(data_pdf_path, pdf_name)
 
         # 转换pdf为image
@@ -27,17 +29,13 @@ def convert_batch_pdf2image(data_pdf_path, data_image_path, poppler_path):
             poppler_path=poppler_path
         )
 
-        # 纵向拼接image
-        # 创建空白画布
-        x_size, y_size = images[0].size[0], 0
-        for image in images:
-            y_size += image.size[1]
-        result_image = Image.new('RGB', (x_size, y_size), 'white')
-        # 指定位置粘贴图片
-        y_size = 0
-        for image in images:
-            result_image.paste(image, (0, y_size))
-            y_size += image.size[1]
-
         # 保存图像
-        result_image.save(os.path.join(data_image_path, f'{title},{subtitle},{page}.png'))
+        i = 0  # 计数器
+        for image in images:
+            image.save(
+                os.path.join(
+                    data_image_path,
+                    os.path.join(data_image_path, f"{title},{subtitle}", f'{page},{i}.png')
+                )
+            )
+            i += 1
