@@ -3,7 +3,7 @@ import sys
 
 from ocr.api.PPOCR_api import GetOcrApi
 from ocr.api.PPOCR_visualize import visualize
-from scr.pdf import convert_batch_pdf2image
+from pdf import convert_batch_pdf2image
 
 path = os.path.dirname(sys.argv[0])
 pdf_dir_path = os.path.join(path, 'data', 'pdf')  # pdf文件夹路径
@@ -17,10 +17,10 @@ def main():
 
     # 存在性判断
     if os.path.exists(exe_path) is False:
-        print('PaddleOCR-json 不存在 程序关闭!!!')
+        print('> PaddleOCR-json 不存在 程序关闭!!!')
         return
     else:
-        print('PaddleOCR-json 初始化进程开始')
+        print('> PaddleOCR-json 初始化进程开始')
 
     ocr = GetOcrApi(exe_path)
 
