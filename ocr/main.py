@@ -1,20 +1,17 @@
+import os
 import sys
-import onnxruntime
-import cv2
 
-import numpy as np
+from ocr.api.PPOCR_api import GetOcrApi
 
-from scr.pdf import *
-
-path = os.path.dirname(sys.argv[0])
-poppler_path = os.path.join(path, 'scr', 'poppler', 'Library', 'bin')
-data_pdf_path = os.path.join(path, 'data', 'pdf')
-data_image_path = os.path.join(path, 'data', 'image')
-data_model_path = os.path.join(path, 'model')
+path = sys.argv[0]
 
 
 def main():
-
+    # 初始化
+    exe_path = os.path.join(path, 'PaddleOCR-json', 'PaddleOCR-json.exe')  # 二进制程序路径
+    print(os.path.exists(exe_path))
+    print(exe_path)
+    # orc = GetOcrApi(exe_path)
 
 
 if __name__ == '__main__':
