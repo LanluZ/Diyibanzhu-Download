@@ -35,7 +35,7 @@ def convert_batch_pdf2image(data_pdf_path, data_image_path, poppler_path):
             image.save(
                 os.path.join(
                     data_image_path,
-                    os.path.join(data_image_path, f"{title},{subtitle}", f'{page},{i}.png')
+                    os.path.join(data_image_path, f"{title},{subtitle}", f'{title},{subtitle},{page},{i}.png')
                 )
             )
             i += 1
