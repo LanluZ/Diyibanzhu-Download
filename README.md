@@ -14,6 +14,12 @@
 1. 通过Tampermonkey爬取网页,并渲染成PDF文件
 2. 在本地使用OCR推理模型对PDF文字识别,并汇总成TXT文件
 
+### 感谢
+
+1. [Tampermonkey](https://github.com/Tampermonkey/tampermonkey): 用户脚本管理器
+2. [PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json): OCR离线图片文字识别命令行windows程序
+3. [pdf2image](https://github.com/Belval/pdf2image/tree/master): 将pdf转化为PIL图像的模块
+
 ---
 
 该脚本仅供学习使用
