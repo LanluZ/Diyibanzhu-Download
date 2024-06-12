@@ -24,10 +24,11 @@
 - 若 Win7 报错`计算机中丢失 VCOMP140.DLL` ，请安装 [VC运行库](https://aka.ms/vs/17/release/vc_redist.x64.exe) 。
 - CPU必须具有AVX指令集。常见的家用CPU一般都满足该条件。
 
-  | AVX   | 支持的产品系列                                         | 不支持                                          |
-        | ----- | ------------------------------------------------------ | ----------------------------------------------- |
-  | Intel | 酷睿Core，至强Xeon                                     | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |
-  | AMD   | 推土机架构及之后的产品，如锐龙Ryzen、速龙Athlon、FX 等 | K10架构及之前的产品                             |
+| AVX   | 支持的产品系列                            | 不支持                                  |
+|-------|------------------------------------|--------------------------------------|
+| Intel | 酷睿Core，至强Xeon                      | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |
+| AMD   | 推土机架构及之后的产品，如锐龙Ryzen、速龙Athlon、FX 等 | K10架构及之前的产品      |
+
 - 如果需求在无AVX的CPU上使用OCR，可看看隔壁 [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json) 。
 
 ### 感谢
