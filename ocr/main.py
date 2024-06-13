@@ -4,7 +4,6 @@ import sys
 import ocr.api.tbpu as tbpu
 
 from ocr.api.PPOCR_api import GetOcrApi
-from ocr.api.PPOCR_visualize import visualize
 from pdf import convert_batch_pdf2image
 
 path = os.path.dirname(sys.argv[0])
@@ -16,7 +15,7 @@ poppler_path = os.path.join(path, 'poppler', 'Library', 'bin')  # poppler路径
 
 def main():
     # pdf预处理
-    # convert_batch_pdf2image(pdf_dir_path, image_dir_path, poppler_path)
+    convert_batch_pdf2image(pdf_dir_path, image_dir_path, poppler_path)
 
     # 初始化
     exe_path = os.path.join(path, 'PaddleOCR-json', 'PaddleOCR-json.exe')  # 二进制程序路径
