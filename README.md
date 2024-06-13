@@ -13,8 +13,23 @@
 
 #### 后处理程序
 
-1. 下载 Release 中的源码
-2. 安装程序依赖
+1. 下载 [Release](https://github.com/LanluZ/Diyibanzhu-Download/releases) 中的源码
+2. 下载 [PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json/releases) 程序
+3. 下载 [poppler](https://poppler.freedesktop.org) 程序
+4. 解压 poppler 与 PaddleOCR-json 到本项目`ocr`文件夹下
+   ```
+      ├── ocr
+      │   ├── api
+      │   ├── data
+      │   ├── main.py
+      │   ├── PaddleOCR-json <--
+      │   ├── pdf.py
+      │   ├── poppler <--
+      └── README.md
+   ```
+5. 安装程序依赖`pip install -r ./requirements.txt`
+6. 将脚本下载得到的pdf文件放入`ocr/data/pdf`文件夹后运行程序
+7. 输出文本在`ocr/data/txt`文件夹中
 
 ### 兼容性
 
@@ -29,7 +44,6 @@
 | Intel | 酷睿Core，至强Xeon                      | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |
 | AMD   | 推土机架构及之后的产品，如锐龙Ryzen、速龙Athlon、FX 等 | K10架构及之前的产品      |
 
-- 如果需求在无AVX的CPU上使用OCR，可看看隔壁 [RapidOCR-json](https://github.com/hiroi-sora/RapidOCR-json) 。
 
 ### 感谢
 
@@ -41,17 +55,14 @@
 
 该脚本仅供学习使用
 
-目前仅js脚本可使用,OCR等待部署中,README等待完善中
 
-### 警告：这是一个比较早期的版本，有许多功能未实现
+### 预览
 
-#### 预览
-
-网站页面
+#### 网站页面
 
 ![001](./img/001.png)
 
-下载结果
+#### 下载结果
 
 ![002](./img/002.png)
 
