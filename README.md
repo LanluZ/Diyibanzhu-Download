@@ -22,13 +22,13 @@
       │   ├── api
       │   ├── data
       │   ├── main.py
-      │   ├── PaddleOCR-json <--
+      │   ├── PaddleOCR-json < PaddleOCR-json 程序目录
       │   ├── pdf.py
-      │   ├── poppler <--
+      │   ├── poppler < poppler 程序目录
       └── README.md
    ```
 5. 安装程序依赖`pip install -r ./requirements.txt`
-6. 将脚本下载得到的pdf文件放入`ocr/data/pdf`文件夹后运行程序
+6. 将脚本下载得到的pdf文件放入`ocr/data/pdf`文件夹后运行`main.py`程序
 7. 输出文本在`ocr/data/txt`文件夹中
 
 ### 兼容性
@@ -62,7 +62,11 @@
 
 ![001](./img/001.png)
 
-#### 下载结果
+#### pdf下载结果
 
 ![002](./img/002.png)
+
+#### ocr识别结果
+
+![003](./img/003.png)
 
