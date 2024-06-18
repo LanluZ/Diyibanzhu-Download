@@ -11,6 +11,10 @@
 1. 浏览器安装 [Tampermonkey](https://github.com/Tampermonkey/tampermonkey) 拓展插件
 2. 安装脚本
 
+| Greasy Fork                                                             | Github                                                                     |
+|-------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [安装](https://greasyfork.org/zh-CN/scripts/498226-diyibanzhu-downloader) | [安装](https://github.com/LanluZ/Diyibanzhu-Download/blob/main/main.user.js) |
+
 #### 后处理程序
 
 1. 下载 [Release](https://github.com/LanluZ/Diyibanzhu-Download/releases) 中的源码
@@ -42,8 +46,7 @@
 | AVX   | 支持的产品系列                            | 不支持                                  |
 |-------|------------------------------------|--------------------------------------|
 | Intel | 酷睿Core，至强Xeon                      | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |
-| AMD   | 推土机架构及之后的产品，如锐龙Ryzen、速龙Athlon、FX 等 | K10架构及之前的产品      |
-
+| AMD   | 推土机架构及之后的产品，如锐龙Ryzen、速龙Athlon、FX 等 | K10架构及之前的产品                          |
 
 ### 感谢
 
@@ -54,7 +57,6 @@
 ---
 
 该脚本仅供学习使用
-
 
 ### 预览
 
@@ -69,4 +71,3 @@
 #### ocr识别结果
 
 ![003](./img/003.png)
-
