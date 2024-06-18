@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
-// @version      3.3.0
+// @version      3.3.1
 // @supportURL   https://github.com/LanluZ/Diyibanzhu-Download
 // @homepageURL  https://github.com/LanluZ/Diyibanzhu-Download
 // @description  第一版主网下载器，因为网址并不固定，所以不做域名匹配
@@ -13,8 +13,6 @@
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @license      GNU GPLv3
-// @require      https://cdn.jsdelivr.net/gh/jimmywarting/StreamSaver.js/StreamSaver.js
-// @require      https://cdn.jsdelivr.net/gh/eligrey/Blob.js/Blob.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js
 // @require
 // ==/UserScript==
