@@ -48,7 +48,7 @@
 | Intel | 酷睿Core，至强Xeon                      | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |
 | AMD   | 推土机架构及之后的产品，如锐龙Ryzen、速龙Athlon、FX 等 | K10架构及之前的产品                          |
 
-### 感谢
+### 致谢
 
 1. [Tampermonkey](https://github.com/Tampermonkey/tampermonkey): 用户脚本管理器
 2. [PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json): OCR离线图片文字识别命令行windows程序
