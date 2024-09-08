@@ -19,7 +19,7 @@
 
 1. 下载 [Release](https://github.com/LanluZ/Diyibanzhu-Download/releases) 中的源码
 2. 下载 [PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json/releases) 程序
-3. 下载 [poppler](https://poppler.freedesktop.org) 程序
+3. 下载 [poppler](https://poppler.freedesktop.org) 程序 ([Windows构建版本@oschwartz10612](https://github.com/oschwartz10612/poppler-windows/releases/))
 4. 解压 poppler 与 PaddleOCR-json 到本项目`ocr`文件夹下
    ```
       ├── ocr
