@@ -55,6 +55,11 @@ def main():
             print(f'> 子图：{image_name} 识别完成')
 
 
+def create_dir(dir_path):
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
+
 class Ocr:
     # 初始化ocr
     def __init__(self, exe_path):
@@ -68,4 +73,7 @@ class Ocr:
 
 
 if __name__ == '__main__':
+    create_dir(text_dir_path)
+    create_dir(image_dir_path)
+    create_dir(pdf_dir_path)
     main()
