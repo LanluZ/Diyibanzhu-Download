@@ -20,7 +20,6 @@
 1. 下载 [Release](https://github.com/LanluZ/Diyibanzhu-Download/releases) 中的源码
 2. 下载 [PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json/releases) 程序
 3. 下载 [poppler](https://poppler.freedesktop.org) 程序
-4. 需配置 pdf2image 模块环境 [配置README](https://github.com/Belval/pdf2image/tree/master)
 4. 解压 poppler 与 PaddleOCR-json 到本项目`ocr`文件夹下
    ```
       ├── ocr
@@ -49,7 +48,7 @@
 | Intel | 酷睿Core，至强Xeon                      | 凌动Atom，安腾Itanium，赛扬Celeron，奔腾Pentium |
 | AMD   | 推土机架构及之后的产品，如锐龙Ryzen、速龙Athlon、FX 等 | K10架构及之前的产品                          |
 
-### 致谢
+### 感谢
 
 1. [Tampermonkey](https://github.com/Tampermonkey/tampermonkey): 用户脚本管理器
 2. [PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json): OCR离线图片文字识别命令行windows程序
