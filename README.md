@@ -19,7 +19,8 @@
 
 1. 下载 [Release](https://github.com/LanluZ/Diyibanzhu-Download/releases) 中的源码
 2. 下载 [PaddleOCR-json](https://github.com/hiroi-sora/PaddleOCR-json/releases) 程序
-3. 下载 [poppler](https://poppler.freedesktop.org) 程序 ([Windows构建版本@oschwartz10612](https://github.com/oschwartz10612/poppler-windows/releases/))
+3. 下载 [poppler](https://poppler.freedesktop.org)
+   程序 ([Windows构建版本@oschwartz10612](https://github.com/oschwartz10612/poppler-windows/releases/))
 4. 解压 poppler 与 PaddleOCR-json 到本项目`ocr`文件夹下
    ```
       ├── ocr
@@ -32,6 +33,7 @@
       └── README.md
    ```
 5. 安装程序依赖`pip install -r ./requirements.txt`
+6. 第一次运行程序自动生成文件夹
 6. 将脚本下载得到的pdf文件放入`ocr/data/pdf`文件夹后运行`main.py`程序
 7. 输出文本在`ocr/data/txt`文件夹中
 
