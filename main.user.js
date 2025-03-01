@@ -72,7 +72,7 @@ function downloadButtonClicked() {
                                 }
                             }
 
-                            // 保存但网页页面为pdf
+                            // 保存网页页面为pdf
                             let pdf_obj = html2pdf().set(opt).from(content_xhr.response.body)
                             pdf_obj.save()
                         }
@@ -261,15 +261,26 @@ function laySearchButton() {
 
 //勾选框创建
 function layCheckbox() {
-    let catalogueList = document.getElementsByClassName("list")[1]
-    // 获取子节点li
-    let liList = catalogueList.getElementsByTagName("li")
-    // 每个li前面添加勾选框
-    for (let i = 0; i < liList.length; i++) {
-        let checkbox = document.createElement("input")
-        checkbox.className = "downloadCheckbox"
-        checkbox.type = "checkbox"
-        liList[i].insertBefore(checkbox, liList[i].firstChild)
+    let catalogueList = document.getElementsByClassName("list")
+
+    // 匹配父元素检查是否为匹配目录
+    for (let i = 0; i < catalogueList.length; i++) {
+        let catalogue = catalogueList[i]
+        let catalogueListFather = catalogueList[i].parentElement
+        let childrenNum = catalogueListFather.children.length
+        // 非目录
+        if (childrenNum > 1) {
+            continue
+        }
+        // 获取子节点li
+        let liList = catalogue.getElementsByTagName("li")
+        // 每个li前面添加勾选框
+        for (let i = 0; i < liList.length; i++) {
+            let checkbox = document.createElement("input")
+            checkbox.className = "downloadCheckbox"
+            checkbox.type = "checkbox"
+            liList[i].insertBefore(checkbox, liList[i].firstChild)
+        }
     }
 }
 
