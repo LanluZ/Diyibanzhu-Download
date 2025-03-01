@@ -12,7 +12,7 @@
 // @grant        GM_download
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
-// @license      GNU GPLv3
+// @license      MIT
 // @require      https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js
 // @require
 // ==/UserScript==
