@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
-// @version      3.3.2
+// @version      3.3.0
 // @supportURL   https://github.com/LanluZ/Diyibanzhu-Download
 // @homepageURL  https://github.com/LanluZ/Diyibanzhu-Download
 // @description  纯小白请勿下载，第一版主网下载器，因为网址并不固定，所以不做域名匹配
@@ -61,7 +61,7 @@ function downloadButtonClicked() {
 
                             // 删除多余标签
                             content_xhr.response = removeElement(content_xhr.response, "neirong")
-                            console.log(">>解析完成 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
+                            console.log(">> 解析完成 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
 
                             // 保存设置
                             let opt = {
@@ -84,7 +84,7 @@ function downloadButtonClicked() {
     }
 }
 
-// 快速搜索按钮点击事件
+//快速搜索按钮点击事件
 function searchButtonClicked() {
     let title = getTitle()
     let info = getInfo()
@@ -100,7 +100,16 @@ function searchButtonClicked() {
 
 }
 
-// 删除指定document多余元素
+//快速复制按钮事件
+function copyContentButtonClicked() {
+    let div = document.getElementById('nr1');
+    let text = div.innerText || div.textContent;
+    navigator.clipboard.writeText(text).then(function () {
+        console.log('文本已复制');
+    });
+}
+
+//删除指定document多余元素
 function removeElement(document, className) {
     try {
         // 寻找目标标签
@@ -162,7 +171,7 @@ function removeElement(document, className) {
     return document;
 }
 
-// 发送xmlHttp请求
+//发送xmlHttp请求
 function sendRequest(url) {
     let xhr = new XMLHttpRequest();
     xhr.open("GET", url);
@@ -171,7 +180,7 @@ function sendRequest(url) {
     return xhr
 }
 
-// 获取指定内容页章节标题链接
+//获取指定内容页章节标题链接
 function getContentInfo(contentDocument) {
     // 结果保存
     let result = []
@@ -214,8 +223,26 @@ function getCatalogueInfo(catalogueDocument) {
 }
 
 //判断网页是否为第一版主三级子页面
-function exist() {
-    return document.getElementsByClassName("read start")[0].innerHTML === "从头开始阅读"
+function existHome() {
+    try {
+        if (document.getElementsByClassName("read start")[0].innerHTML === "从头开始阅读") {
+            return true
+        }
+    } catch (e) {
+        return false
+    }
+}
+
+//判断网页是否为内容页
+function existContent() {
+    //检查nr1是否存在
+    try {
+        if (document.getElementById("nr1")) {
+            return true
+        }
+    } catch (e) {
+        return false
+    }
 }
 
 //获取文章标题
@@ -284,12 +311,31 @@ function layCheckbox() {
     }
 }
 
+//内容页复制按钮创建(针对于无反爬内容页)
+function layCopyContentButton() {
+    let ftNode = document.getElementsByClassName("page-title")[0]
+    let copyContentButton = document.createElement("div")
+    copyContentButton.innerHTML = "<tr><td style='width: 50px'><button>复制内容</button></td></tr>"
+    copyContentButton.onclick = function () { // 点击处理事件
+        copyContentButtonClicked();
+    };
+    ftNode.appendChild(copyContentButton)
+    //修改nr1样式允许选中
+    let nr1 = document.getElementById("nr1")
+    nr1.style.userSelect = "text"
+}
+
+
 (function () {
     'use strict';
     //放置按钮
-    if (exist()) {
+    if (existHome()) {
         layDownloadButton()
         laySearchButton()
         layCheckbox()
+    }
+    //内容页
+    if (existContent()) {
+        layCopyContentButton()
     }
 })()
