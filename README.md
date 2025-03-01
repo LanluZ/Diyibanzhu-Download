@@ -8,6 +8,8 @@
 
 **特别说明:本脚本使用并不方便使用,对无计算机知识的用户不推荐使用**
 
+1. 脚本已允许内容页复制文本
+
 #### 脚本
 
 1. 浏览器安装 [Tampermonkey](https://github.com/Tampermonkey/tampermonkey) 拓展插件
