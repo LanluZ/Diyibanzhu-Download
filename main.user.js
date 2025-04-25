@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diyibanzhu Downloader
 // @namespace    http://tampermonkey.net/
-// @version      3.3.0
+// @version      4.0.0
 // @supportURL   https://github.com/LanluZ/Diyibanzhu-Download
 // @homepageURL  https://github.com/LanluZ/Diyibanzhu-Download
 // @description  纯小白请勿下载，第一版主网下载器，因为网址并不固定，所以不做域名匹配
@@ -17,325 +17,293 @@
 // @require
 // ==/UserScript==
 
+class DiyibanzhuDownloader {
+    constructor() {
+        this.title = '';
+        this.info = '';
+        this.pdfOptions = {
+            margin: 1,
+            image: { type: 'jpeg', quality: 0.95 }, // 使用JPEG格式，稍微降低质量以提高速度
+            enableLinks: false, // 禁用链接以提高速度
+            html2canvas: {
+                scale: 2, // 提高清晰度
+                useCORS: true, // 允许跨域图片
+                logging: false, // 禁用日志以提高性能
+                letterRendering: true
+            },
+            jsPDF: {
+                unit: 'pt',
+                format: 'a4',
+                compress: true // 启用压缩以减小文件大小
+            }
+        };
+    }
 
-//下载按钮点击事件
-function downloadButtonClicked() {
-    // 获取文章基础信息
-    let title = getTitle()
-    let info = getInfo()
-
-    // 获取文章章节信息
-    let catalogueInfoList = getCatalogueInfo(document)
-
-    // 读取勾选框信息
-    let checkboxList = document.getElementsByClassName("downloadCheckbox")
-
-
-    // 下载内容
-    for (let i = 0; i < catalogueInfoList.length; i++) {
-        // 判断是否选中
-        if (!checkboxList[i].checked) {
-            continue
+    // 初始化页面
+    init() {
+        this.title = this.getTitle();
+        this.info = this.getInfo();
+        
+        if (this.existHome()) {
+            this.layDownloadButton();
+            this.laySearchButton();
+            this.layCheckbox();
         }
+        
+        if (this.existContent()) {
+            this.layCopyContentButton();
+        }
+    }
 
-        // 发送请求
-        let download_url = catalogueInfoList[i].href
+    // 发送HTTP请求
+    sendRequest(url) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url);
+            xhr.responseType = "document";
+            xhr.onload = () => xhr.status === 200 ? resolve(xhr.response) : reject(new Error(`HTTP ${xhr.status}`));
+            xhr.onerror = () => reject(new Error('Network Error'));
+            xhr.send();
+        });
+    }
 
-        // 发送请求
-        let xhr = sendRequest(download_url)
-        xhr.onload = function () {
-            if (xhr.status !== 200) {
-                console.log("目录页下载错误 " + "status:" + xhr.status);
-            } else {
-                // 获取内容页目录链接
-                let contentInfoList = getContentInfo(xhr.response)
-
-                // 向内容页发送请求
-                for (let j = 0; j < contentInfoList.length; j++) {
-                    let content_xhr = sendRequest(contentInfoList[j].href)
-                    content_xhr.onload = function () {
-                        if (content_xhr.status !== 200) {
-                            console.log("内容页下载错误 " + "status:" + content_xhr.status);
-                        } else {
-                            console.log("> 下载开始 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
-
-                            // 删除多余标签
-                            content_xhr.response = removeElement(content_xhr.response, "neirong")
-                            console.log(">> 解析完成 " + catalogueInfoList[i].text + '-' + contentInfoList[j].text)
-
-                            // 保存设置
-                            let opt = {
-                                margin: 1,
-                                filename: title + "," + catalogueInfoList[i].text + ',' + contentInfoList[j].text + '.pdf',
-                                image: {
-                                    type: 'png',
-                                }
-                            }
-
-                            // 保存网页页面为pdf
-                            let pdf_obj = html2pdf().set(opt).from(content_xhr.response.body)
-                            pdf_obj.save()
+    // 下载处理
+    async downloadButtonClicked() {
+        try {
+            const catalogueInfoList = this.getCatalogueInfo(document);
+            const checkboxList = document.getElementsByClassName("downloadCheckbox");
+            
+            for (let i = 0; i < catalogueInfoList.length; i++) {
+                if (!checkboxList[i].checked) continue;
+                
+                console.log(`开始处理章节: ${catalogueInfoList[i].text}`);
+                
+                try {
+                    const catalogPage = await this.sendRequest(catalogueInfoList[i].href);
+                    const contentInfoList = this.getContentInfo(catalogPage);
+                    
+                    for (const contentInfo of contentInfoList) {
+                        try {
+                            console.log(`> 开始下载: ${catalogueInfoList[i].text}-${contentInfo.text}`);
+                            const contentPage = await this.sendRequest(contentInfo.href);
+                            
+                            // 预处理文档
+                            const cleanedDoc = this.removeElement(contentPage, "neirong");
+                            console.log(`>> 解析完成: ${catalogueInfoList[i].text}-${contentInfo.text}`);
+                            
+                            // 配置PDF选项
+                            const options = {
+                                ...this.pdfOptions,
+                                filename: `${this.title},${catalogueInfoList[i].text},${contentInfo.text}.pdf`
+                            };
+                            
+                            // 异步生成PDF
+                            await this.generatePDF(cleanedDoc.body, options);
+                            console.log(`>>> PDF生成完成: ${options.filename}`);
+                        } catch (error) {
+                            console.error(`下载内容页失败: ${contentInfo.text}`, error);
                         }
                     }
-
+                } catch (error) {
+                    console.error(`下载目录页失败: ${catalogueInfoList[i].text}`, error);
                 }
             }
+        } catch (error) {
+            console.error('下载过程出错:', error);
         }
     }
-}
 
-//快速搜索按钮点击事件
-function searchButtonClicked() {
-    let title = getTitle()
-    let info = getInfo()
-    // 信息输出
-    console.log(title)
-    console.log(info)
+    // 生成PDF
+    async generatePDF(element, options) {
+        return html2pdf().set(options).from(element).save();
+    }
 
-    // title字符串转UFT-8
-    title = encodeURIComponent(title)
+    // 搜索功能
+    searchButtonClicked() {
+        const encodedTitle = encodeURIComponent(this.title);
+        window.open(`https://www.google.com/search?q=${encodedTitle}`);
+    }
 
-    // 打开新标签页通过谷歌搜索title内容
-    window.open("https://www.google.com/search?q=" + title)
+    // 复制内容
+    copyContentButtonClicked() {
+        const div = document.getElementById('nr1');
+        const text = div.innerText || div.textContent;
+        navigator.clipboard.writeText(text)
+            .then(() => console.log('文本已复制'))
+            .catch(err => console.error('复制失败:', err));
+    }
 
-}
+    // 清理文档元素
+    removeElement(document, className) {
+        try {
+            const aimTag = document.querySelector(`.${className}`);
+            if (!aimTag) {
+                console.log("未找到目标标签");
+                return document;
+            }
 
-//快速复制按钮事件
-function copyContentButtonClicked() {
-    let div = document.getElementById('nr1');
-    let text = div.innerText || div.textContent;
-    navigator.clipboard.writeText(text).then(function () {
-        console.log('文本已复制');
-    });
-}
+            // 获取所有相关元素
+            const elements = {
+                prev: this.getPreviousElements(aimTag),
+                next: this.getNextElements(aimTag),
+                parent: this.getParentElements(aimTag)
+            };
 
-//删除指定document多余元素
-function removeElement(document, className) {
-    try {
-        // 寻找目标标签
-        let aimTag = document.querySelector('.' + className);
-        if (!aimTag) {
-            console.log("未找到目标标签");
-            return document;
+            // 删除不需要的元素
+            this.removeUnwantedElements(elements);
+        } catch (e) {
+            console.error("解析错误:", e);
         }
+        return document;
+    }
 
-        // 寻找目标标签之前标签
-        let prevTags = []
-        let currentNode = aimTag
-        while (currentNode.previousElementSibling || currentNode.parentElement) {
-            if (currentNode.previousElementSibling) {
-                currentNode = currentNode.previousElementSibling;
-                prevTags.unshift(currentNode);
-            } else if (currentNode.parentElement) {
-                currentNode = currentNode.parentElement;
+    // 获取前置元素
+    getPreviousElements(element) {
+        const elements = [];
+        let current = element;
+        while (current.previousElementSibling || current.parentElement) {
+            if (current.previousElementSibling) {
+                current = current.previousElementSibling;
+                elements.unshift(current);
+            } else if (current.parentElement) {
+                current = current.parentElement;
             }
         }
+        return elements;
+    }
 
-        // 寻找目标标签之后标签
-        let nextTags = []
-        currentNode = aimTag
-        while (currentNode.nextElementSibling || currentNode.parentElement) {
-            if (currentNode.nextElementSibling) {
-                currentNode = currentNode.nextElementSibling;
-                nextTags.push(currentNode);
-            } else if (currentNode.parentElement) {
-                currentNode = currentNode.parentElement;
+    // 获取后续元素
+    getNextElements(element) {
+        const elements = [];
+        let current = element;
+        while (current.nextElementSibling || current.parentElement) {
+            if (current.nextElementSibling) {
+                current = current.nextElementSibling;
+                elements.push(current);
+            } else if (current.parentElement) {
+                current = current.parentElement;
             }
         }
+        return elements;
+    }
 
-        // 寻找目标标签父标签
-        let parentTags = [];
-        currentNode = aimTag;
-        while (currentNode.parentElement) {
-            parentTags.push(currentNode.parentElement);
-            currentNode = currentNode.parentElement;
+    // 获取父元素
+    getParentElements(element) {
+        const elements = [];
+        let current = element;
+        while (current.parentElement) {
+            elements.push(current.parentElement);
+            current = current.parentElement;
         }
+        return elements;
+    }
 
-        // 删除前标签中非父标签和非head标签
-        for (let i = 0; i < prevTags.length; i++) {
-            if (!parentTags.includes(prevTags[i]) && !prevTags[i].classList.contains('head')) {
-                prevTags[i].remove();
+    // 删除不需要的元素
+    removeUnwantedElements({prev, next, parent}) {
+        prev.forEach(element => {
+            if (!parent.includes(element) && !element.classList.contains('head')) {
+                element.remove();
             }
-        }
+        });
 
-        // 删除后标签
-        for (let i = 0; i < nextTags.length; i++) {
-            nextTags[i].remove();
-        }
-
-
-    } catch (e) {
-        console.log("解析错误:", e);
+        next.forEach(element => element.remove());
     }
 
-    return document;
-}
-
-//发送xmlHttp请求
-function sendRequest(url) {
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", url);
-    xhr.responseType = "document";
-    xhr.send();
-    return xhr
-}
-
-//获取指定内容页章节标题链接
-function getContentInfo(contentDocument) {
-    // 结果保存
-    let result = []
-    // 大目录元素
-    let catalogueList = contentDocument.getElementsByClassName("chapterPages")[0]
-    // 获取子节点a
-    let aList = catalogueList.getElementsByTagName("a")
-    // 获取节点a内href与innerText
-    for (let i = 0; i < aList.length; i++) {
-        let href = aList[i].href
-        let text = aList[i].innerText
-        // 保存结果
-        result.push({
-            href: href, text: text
-        })
-    }
-    // 返回结果
-    return result
-}
-
-//获取指定目录页章节标题链接
-function getCatalogueInfo(catalogueDocument) {
-    // 结果保存
-    let result = []
-    // 大目录元素
-    let catalogueList = catalogueDocument.getElementsByClassName("list")[1]
-    // 获取子节点li
-    let liList = catalogueList.getElementsByTagName("li")
-    // 获取节点li内href与innerText
-    for (let i = 0; i < liList.length; i++) {
-        let href = liList[i].getElementsByTagName("a")[0].href
-        let text = liList[i].getElementsByTagName("a")[0].innerText
-        // 保存结果
-        result.push({
-            href: href, text: text
-        })
+    // 获取内容信息
+    getContentInfo(contentDocument) {
+        const catalogueList = contentDocument.getElementsByClassName("chapterPages")[0];
+        return Array.from(catalogueList.getElementsByTagName("a")).map(a => ({
+            href: a.href,
+            text: a.innerText
+        }));
     }
 
-    return result
-}
-
-//判断网页是否为第一版主三级子页面
-function existHome() {
-    try {
-        if (document.getElementsByClassName("read start")[0].innerHTML === "从头开始阅读") {
-            return true
-        }
-    } catch (e) {
-        return false
+    // 获取目录信息
+    getCatalogueInfo(catalogueDocument) {
+        const catalogueList = catalogueDocument.getElementsByClassName("list")[1];
+        return Array.from(catalogueList.getElementsByTagName("li")).map(li => {
+            const a = li.getElementsByTagName("a")[0];
+            return {
+                href: a.href,
+                text: a.innerText
+            };
+        });
     }
-}
 
-//判断网页是否为内容页
-function existContent() {
-    //检查nr1是否存在
-    try {
-        if (document.getElementById("nr1")) {
-            return true
-        }
-    } catch (e) {
-        return false
-    }
-}
-
-//获取文章标题
-function getTitle() {
-    return (document.getElementsByTagName("h1")[0].innerHTML)
-}
-
-//获取文章相关信息
-function getInfo() {
-    return (document.getElementsByClassName("info")[0].innerHTML.replace(/<br>/g, ""));
-}
-
-//下载按钮创建
-function layDownloadButton() {
-    if (document.getElementsByClassName("ft")[0]) {
-
-        let downloadBtn = document.createElement("div")
-        downloadBtn.innerHTML = "<tr><td style='width: 50px'><a class='read start'>下载</a></td></tr>"
-        downloadBtn.onclick = function () { // 点击处理事件
-            downloadButtonClicked();
-        };
-
-        let ftNode = document.getElementsByClassName("ft")[0].childNodes[1].childNodes[1]
-
-        ftNode.appendChild(downloadBtn)
-
-    }
-}
-
-//搜索按钮创建
-function laySearchButton() {
-    if (document.getElementsByClassName("ft")[0]) {
-        let searchBtn = document.createElement("div")
-        searchBtn.innerHTML = "<tr><td style='width: 50px'><a class='read start'>搜索</a></td></tr>"
-        searchBtn.onclick = function () { // 点击处理事件
-            searchButtonClicked();
-        };
-        let ftNode = document.getElementsByClassName("ft")[0].childNodes[1].childNodes[1]
-
-        ftNode.appendChild(searchBtn)
-    }
-}
-
-//勾选框创建
-function layCheckbox() {
-    let catalogueList = document.getElementsByClassName("list")
-
-    // 匹配父元素检查是否为匹配目录
-    for (let i = 0; i < catalogueList.length; i++) {
-        let catalogue = catalogueList[i]
-        let catalogueListFather = catalogueList[i].parentElement
-        let childrenNum = catalogueListFather.children.length
-        // 非目录
-        if (childrenNum > 1) {
-            continue
-        }
-        // 获取子节点li
-        let liList = catalogue.getElementsByTagName("li")
-        // 每个li前面添加勾选框
-        for (let i = 0; i < liList.length; i++) {
-            let checkbox = document.createElement("input")
-            checkbox.className = "downloadCheckbox"
-            checkbox.type = "checkbox"
-            liList[i].insertBefore(checkbox, liList[i].firstChild)
+    // 检查是否为主页
+    existHome() {
+        try {
+            return document.getElementsByClassName("read start")[0].innerHTML === "从头开始阅读";
+        } catch (e) {
+            return false;
         }
     }
+
+    // 检查是否为内容页
+    existContent() {
+        return !!document.getElementById("nr1");
+    }
+
+    // 获取标题
+    getTitle() {
+        return document.getElementsByTagName("h1")[0].innerHTML;
+    }
+
+    // 获取信息
+    getInfo() {
+        return document.getElementsByClassName("info")[0].innerHTML.replace(/<br>/g, "");
+    }
+
+    // UI相关方法
+    layDownloadButton() {
+        this.createButton("下载", () => this.downloadButtonClicked());
+    }
+
+    laySearchButton() {
+        this.createButton("搜索", () => this.searchButtonClicked());
+    }
+
+    layCopyContentButton() {
+        const ftNode = document.getElementsByClassName("page-title")[0];
+        const button = document.createElement("div");
+        button.innerHTML = "<tr><td style='width: 50px'><button>复制内容</button></td></tr>";
+        button.onclick = () => this.copyContentButtonClicked();
+        ftNode.appendChild(button);
+
+        const nr1 = document.getElementById("nr1");
+        if (nr1) nr1.style.userSelect = "text";
+    }
+
+    createButton(text, onClick) {
+        const ft = document.getElementsByClassName("ft")[0];
+        if (!ft) return;
+
+        const button = document.createElement("div");
+        button.innerHTML = `<tr><td style='width: 50px'><a class='read start'>${text}</a></td></tr>`;
+        button.onclick = onClick;
+        ft.childNodes[1].childNodes[1].appendChild(button);
+    }
+
+    layCheckbox() {
+        const catalogueLists = document.getElementsByClassName("list");
+        Array.from(catalogueLists).forEach(list => {
+            const parent = list.parentElement;
+            if (parent.children.length > 1) return;
+
+            const items = list.getElementsByTagName("li");
+            Array.from(items).forEach(item => {
+                const checkbox = document.createElement("input");
+                checkbox.className = "downloadCheckbox";
+                checkbox.type = "checkbox";
+                item.insertBefore(checkbox, item.firstChild);
+            });
+        });
+    }
 }
 
-//内容页复制按钮创建(针对于无反爬内容页)
-function layCopyContentButton() {
-    let ftNode = document.getElementsByClassName("page-title")[0]
-    let copyContentButton = document.createElement("div")
-    copyContentButton.innerHTML = "<tr><td style='width: 50px'><button>复制内容</button></td></tr>"
-    copyContentButton.onclick = function () { // 点击处理事件
-        copyContentButtonClicked();
-    };
-    ftNode.appendChild(copyContentButton)
-    //修改nr1样式允许选中
-    let nr1 = document.getElementById("nr1")
-    nr1.style.userSelect = "text"
-}
-
-
-(function () {
+// 初始化脚本
+(function() {
     'use strict';
-    //放置按钮
-    if (existHome()) {
-        layDownloadButton()
-        laySearchButton()
-        layCheckbox()
-    }
-    //内容页
-    if (existContent()) {
-        layCopyContentButton()
-    }
-})()
+    const downloader = new DiyibanzhuDownloader();
+    downloader.init();
+})();
