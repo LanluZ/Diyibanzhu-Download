@@ -136,86 +136,98 @@ class DiyibanzhuDownloader {
     // 清理文档元素
     removeElement(document, className) {
         try {
-            const aimTag = document.querySelector(`.${className}`);
+            // 寻找目标标签
+            const aimTag = document.querySelector('.' + className);
             if (!aimTag) {
+                // 如果没有找到目标标签，尝试查找 nr1 元素
+                const nr1Tag = document.getElementById('nr1');
+                if (nr1Tag) {
+                    return document;
+                }
                 console.log("未找到目标标签");
                 return document;
             }
 
-            // 获取所有相关元素
-            const elements = {
-                prev: this.getPreviousElements(aimTag),
-                next: this.getNextElements(aimTag),
-                parent: this.getParentElements(aimTag)
-            };
+            // 寻找目标标签之前标签
+            let prevTags = [];
+            let currentNode = aimTag;
+            while (currentNode.previousElementSibling || currentNode.parentElement) {
+                if (currentNode.previousElementSibling) {
+                    currentNode = currentNode.previousElementSibling;
+                    prevTags.unshift(currentNode);
+                } else if (currentNode.parentElement) {
+                    currentNode = currentNode.parentElement;
+                }
+            }
 
-            // 删除不需要的元素
-            this.removeUnwantedElements(elements);
+            // 寻找目标标签之后标签
+            let nextTags = [];
+            currentNode = aimTag;
+            while (currentNode.nextElementSibling || currentNode.parentElement) {
+                if (currentNode.nextElementSibling) {
+                    currentNode = currentNode.nextElementSibling;
+                    nextTags.push(currentNode);
+                } else if (currentNode.parentElement) {
+                    currentNode = currentNode.parentElement;
+                }
+            }
+
+            // 寻找目标标签父标签
+            let parentTags = [];
+            currentNode = aimTag;
+            while (currentNode.parentElement) {
+                parentTags.push(currentNode.parentElement);
+                currentNode = currentNode.parentElement;
+            }
+
+            // 删除前标签中非父标签和非head标签
+            for (let i = 0; i < prevTags.length; i++) {
+                if (!parentTags.includes(prevTags[i]) && !prevTags[i].classList.contains('head')) {
+                    prevTags[i].remove();
+                }
+            }
+
+            // 删除后标签
+            for (let i = 0; i < nextTags.length; i++) {
+                nextTags[i].remove();
+            }
+
         } catch (e) {
             console.error("解析错误:", e);
         }
         return document;
     }
 
-    // 获取前置元素
-    getPreviousElements(element) {
-        const elements = [];
-        let current = element;
-        while (current.previousElementSibling || current.parentElement) {
-            if (current.previousElementSibling) {
-                current = current.previousElementSibling;
-                elements.unshift(current);
-            } else if (current.parentElement) {
-                current = current.parentElement;
-            }
-        }
-        return elements;
-    }
-
-    // 获取后续元素
-    getNextElements(element) {
-        const elements = [];
-        let current = element;
-        while (current.nextElementSibling || current.parentElement) {
-            if (current.nextElementSibling) {
-                current = current.nextElementSibling;
-                elements.push(current);
-            } else if (current.parentElement) {
-                current = current.parentElement;
-            }
-        }
-        return elements;
-    }
-
-    // 获取父元素
-    getParentElements(element) {
-        const elements = [];
-        let current = element;
-        while (current.parentElement) {
-            elements.push(current.parentElement);
-            current = current.parentElement;
-        }
-        return elements;
-    }
-
-    // 删除不需要的元素
-    removeUnwantedElements({prev, next, parent}) {
-        prev.forEach(element => {
-            if (!parent.includes(element) && !element.classList.contains('head')) {
-                element.remove();
-            }
+    //获取指定内容页章节标题链接
+    getContentInfo(contentDocument) {
+        const result = [];
+        const currentUrl = contentDocument.URL;
+        
+        // 总是添加当前页面作为第一页
+        result.push({
+            href: currentUrl,
+            text: '[1]'
         });
 
-        next.forEach(element => element.remove());
-    }
-
-    // 获取内容信息
-    getContentInfo(contentDocument) {
+        // 检查是否有分页
         const catalogueList = contentDocument.getElementsByClassName("chapterPages")[0];
-        return Array.from(catalogueList.getElementsByTagName("a")).map(a => ({
-            href: a.href,
-            text: a.innerText
-        }));
+        if (!catalogueList) {
+            return result;
+        }
+
+        // 获取分页链接
+        const pageLinks = catalogueList.getElementsByTagName("a");
+        for (let i = 0; i < pageLinks.length; i++) {
+            // 跳过当前页面的重复链接
+            if (pageLinks[i].href !== currentUrl) {
+                result.push({
+                    href: pageLinks[i].href,
+                    text: `[${i + 2}]`  // 从[2]开始编号
+                });
+            }
+        }
+
+        return result;
     }
 
     // 获取目录信息
@@ -285,18 +297,19 @@ class DiyibanzhuDownloader {
     }
 
     layCheckbox() {
-        const catalogueLists = document.getElementsByClassName("list");
-        Array.from(catalogueLists).forEach(list => {
-            const parent = list.parentElement;
-            if (parent.children.length > 1) return;
+        // 使用与getCatalogueInfo相同的目录列表
+        const catalogueList = document.getElementsByClassName("list")[1];
+        if (!catalogueList) {
+            console.log("未找到目录列表");
+            return;
+        }
 
-            const items = list.getElementsByTagName("li");
-            Array.from(items).forEach(item => {
-                const checkbox = document.createElement("input");
-                checkbox.className = "downloadCheckbox";
-                checkbox.type = "checkbox";
-                item.insertBefore(checkbox, item.firstChild);
-            });
+        const items = catalogueList.getElementsByTagName("li");
+        Array.from(items).forEach(item => {
+            const checkbox = document.createElement("input");
+            checkbox.className = "downloadCheckbox";
+            checkbox.type = "checkbox";
+            item.insertBefore(checkbox, item.firstChild);
         });
     }
 }
